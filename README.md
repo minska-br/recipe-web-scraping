@@ -2,11 +2,18 @@
 
 API developed for web crawling using Node with Typescript.
 
+## Environment
+Example of how ```.env``` file should be structured:
+```sh
+PORT=4390
+HOSTNAME=www.example.host.com
+```
+
 ## TODO
 
 ### Main
 
-  - [ ] **Build the API core with Node and Typescript**
+  - [x] **Build the API core with Node and Typescript**
     - Example: An *is alive* endpoint returning success as true.
   - [ ] Execute webcrawling using some existing lib.
     - Recommended: 
