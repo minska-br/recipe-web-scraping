@@ -15,11 +15,11 @@ HOSTNAME=www.example.host.com
 
   - [x] **Build the API core with Node and Typescript**
     - Example: An *is alive* endpoint returning success as true.
-  - [ ] Execute webcrawling using some existing lib.
+  - [x] Execute web scraping using some existing lib.
     - Recommended: 
-      - [Puppeteer](https://www.npmjs.com/package/puppeteer)
+      - **[Puppeteer](https://www.npmjs.com/package/puppeteer)**
       - [Selenium](https://www.npmjs.com/package/selenium-webdriver)
-  - [ ] **Search for recipes by title on a website**
+  - [x] **Search for recipes by title on a website**
     - Recommended: https://www.tudogostoso.com.br/
   - [ ] **Translate the recipe into English**
 
