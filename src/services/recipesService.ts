@@ -1,15 +1,11 @@
-import * as puppeteer from "puppeteer";
-import { Browser } from "puppeteer";
-
-import receiptUnits from "../constants/receiptUnits";
-import TudoGostosoCrawler from "../crawlers/tudoGostosoCrawler";
-import Direction from "../model/Direction";
-import Ingredient from "../model/Ingredient";
-import Recipe from "../model/Recipe";
-import recipeRouter from "../routes/recipeRouter";
-import removeTagsHTML from "../utils/removeTagsHTML";
-import replaceAll from "../utils/replaceAll";
-import toCapitalizedCase from "../utils/toCapitalizedCase";
+import receiptUnits from '../constants/receiptUnits';
+import TudoGostosoCrawler from '../crawlers/tudoGostosoCrawler';
+import Direction from '../model/Direction';
+import Ingredient from '../model/Ingredient';
+import Recipe from '../model/Recipe';
+import removeTagsHTML from '../utils/removeTagsHTML';
+import replaceAll from '../utils/replaceAll';
+import toCapitalizedCase from '../utils/toCapitalizedCase';
 
 class RecipesService {
   async search(value = "test", hideCrawler = true) {
@@ -33,28 +29,19 @@ class RecipesService {
       );
       const ingredientsObj: Ingredient[] = ingredients.map((item) => {
         const whitespaceBetweenWords = " ";
-
         const itemWords = item.split(whitespaceBetweenWords);
-        const receiptUnitUsed = orderedRecipeUnits.find((unit) => item.includes(unit));
+        const hasAmountNumber = !isNaN(Number(itemWords[0]));
 
-        if (receiptUnitUsed) {
+        if (hasAmountNumber) {
+          const receiptUnitUsed = orderedRecipeUnits.find((unit) => item.includes(unit));
           const [amountText, ...nameText] = item.split(receiptUnitUsed);
           const amount = `${amountText.trim()} ${receiptUnitUsed.trim()}`.trim();
           const igredientName = nameText.join(whitespaceBetweenWords).replace("de ", "").trim();
 
           return { amount, name: toCapitalizedCase(igredientName) };
-        } else {
-          const firstWordIsNumber = !isNaN(Number(itemWords[0]));
-
-          if (firstWordIsNumber) {
-            const [amountText, ...nameText] = item.split(whitespaceBetweenWords);
-            return {
-              amount: amountText,
-              name: toCapitalizedCase(nameText.join(whitespaceBetweenWords)),
-            };
-          }
-          return { amount: "indefinido", name: toCapitalizedCase(item) };
         }
+
+        return { amount: "indefinido", name: toCapitalizedCase(item) };
       });
 
       const directions: Direction[] = recipeCrawled.Directions.split('<li><span tabindex="0">')
