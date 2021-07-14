@@ -21,21 +21,22 @@ const selectors = {
 };
 
 class TudoGostosoCrawler {
-  async search(value = "test", hideCrawler = true): Promise<CrawledRecipe> {
-    let browser: Browser | null = null;
-    const url = `https://www.tudogostoso.com.br`;
+  private url = `https://www.tudogostoso.com.br`;
+  private defaultBrowserArgs = {
+    headless: false,
+    defaultViewport: null,
+    args: ["--start-maximized"],
+  };
+  constructor(private browser: Browser | null = null) {}
+
+  async getDetail(value = "test", hideCrawler = true): Promise<CrawledRecipe> {
     const delay = 1000;
+    this.browser = await puppeteer.launch({ ...this.defaultBrowserArgs, headless: hideCrawler });
 
     try {
-      browser = await puppeteer.launch({
-        headless: hideCrawler,
-        defaultViewport: null,
-        args: ["--start-maximized"],
-      });
+      const page = await this.browser.newPage();
 
-      const page = await browser.newPage();
-
-      await page.goto(url);
+      await page.goto(this.url);
       await page.waitForTimeout(delay);
 
       const hasInitialAlertCancelButtonHTML = await page.evaluate((selector) => {
@@ -76,9 +77,11 @@ class TudoGostosoCrawler {
       console.error(">>> Error: ", error);
       return null;
     } finally {
-      if (browser) browser.close();
+      if (this.browser) this.browser.close();
     }
   }
+
+  async getList(value = "test", hideCrawler = true) {}
 }
 
 export default TudoGostosoCrawler;

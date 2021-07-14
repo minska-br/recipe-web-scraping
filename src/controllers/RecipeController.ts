@@ -14,7 +14,7 @@ export default class RecipeController {
       return response.status(400).json({ message: "Value is required to search recipes." });
     }
 
-    const recipe = await this.recipesService.search(value as string, false);
+    const recipe = await this.recipesService.getDetail(value as string, false);
 
     if (recipe) return response.json(recipe);
     else return response.status(404).json({ message: "Recipe not found" });
