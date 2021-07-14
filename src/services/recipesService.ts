@@ -8,13 +8,14 @@ import replaceAll from '../utils/replaceAll';
 import toCapitalizedCase from '../utils/toCapitalizedCase';
 
 class RecipesService {
-  async search(value = "test", hideCrawler = true) {
+  constructor(private tudoGostosoCrawler = new TudoGostosoCrawler()) {}
+
+  async getDetail(value = "test", hideCrawler = true) {
     const romovables = ["\n"];
     const orderedRecipeUnits = receiptUnits.sort((a, b) => b.length - a.length);
 
     try {
-      const tudoGostosoCrawler = new TudoGostosoCrawler();
-      const recipeCrawled = await tudoGostosoCrawler.search(value, hideCrawler);
+      const recipeCrawled = await this.tudoGostosoCrawler.getDetail(value, hideCrawler);
 
       if (!recipeCrawled) return null;
 
@@ -29,16 +30,51 @@ class RecipesService {
       );
       const ingredientsObj: Ingredient[] = ingredients.map((item) => {
         const whitespaceBetweenWords = " ";
-        const itemWords = item.split(whitespaceBetweenWords);
-        const hasAmountNumber = !isNaN(Number(itemWords[0]));
+        const itemWords = item.toLowerCase().split(whitespaceBetweenWords);
+        const firstItemText = itemWords[0];
+        const hasAmountNumber = !isNaN(Number(firstItemText)) || firstItemText.includes("/");
 
         if (hasAmountNumber) {
-          const receiptUnitUsed = orderedRecipeUnits.find((unit) => item.includes(unit));
-          const [amountText, ...nameText] = item.split(receiptUnitUsed);
-          const amount = `${amountText.trim()} ${receiptUnitUsed.trim()}`.trim();
-          const igredientName = nameText.join(whitespaceBetweenWords).replace("de ", "").trim();
+          const [amountText, ...nameText] = itemWords;
+          const wholeNameText = nameText.join(whitespaceBetweenWords);
 
-          return { amount, name: toCapitalizedCase(igredientName) };
+          const nameTextInit = nameText[0];
+          const nameTextInitIsUnitWithSingleLetter = orderedRecipeUnits
+            .filter((unit) => unit.length === 1)
+            .some((unit) => unit === nameTextInit);
+
+          if (nameTextInitIsUnitWithSingleLetter) {
+            const nameTextWithoutUnitArray = nameText.slice(1, wholeNameText.length);
+            const nameTextWithoutUnit = nameTextWithoutUnitArray.join(whitespaceBetweenWords);
+            return {
+              amount: `${amountText.trim()} ${nameTextInit.toLowerCase()}`,
+              name: toCapitalizedCase(nameTextWithoutUnit.replace("de ", "")),
+            };
+          }
+
+          // len > 1 = Units with single letters already returned
+          for (let len = wholeNameText.length; len > 1; len--) {
+            /**
+             * Analyzes whether text without the number is a revenue unit of measure, but reducing the
+             * remaining text until more than one letter remains.
+             */
+            const nameTextInit = wholeNameText.substring(0, len);
+
+            const recipeUnitUsed = orderedRecipeUnits
+              .filter((unit) => unit.length > 1)
+              .find((unit) => {
+                return unit.includes(nameTextInit) && unit.length === nameTextInit.length;
+              });
+
+            if (recipeUnitUsed) {
+              const nameTextFinal = wholeNameText.substring(len, wholeNameText.length).trim();
+              return {
+                amount: `${amountText.trim()} ${recipeUnitUsed.toLowerCase()}`,
+                name: toCapitalizedCase(nameTextFinal.replace("de ", "")).trim(),
+              };
+            }
+          }
+          return { amount: amountText.trim(), name: toCapitalizedCase(wholeNameText) };
         }
 
         return { amount: "indefinido", name: toCapitalizedCase(item) };
