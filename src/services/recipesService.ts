@@ -14,9 +14,6 @@ class RecipesService {
     const romovables = ["\n"];
     const orderedRecipeUnits = receiptUnits.sort((a, b) => b.length - a.length);
 
-    console.log(">>> orderedRecipeUnits: ");
-    orderedRecipeUnits.forEach((x, idx) => console.log(`${idx} - ${x}`));
-
     try {
       const recipeCrawled = await this.tudoGostosoCrawler.getDetail(value, hideCrawler);
 
@@ -45,7 +42,6 @@ class RecipesService {
           const nameTextInitIsUnitWithSingleLetter = orderedRecipeUnits
             .filter((unit) => unit.length === 1)
             .some((unit) => unit === nameTextInit);
-          console.log(">>> Here: ", { nameTextInit, nameTextInitIsUnitWithSingleLetter });
 
           if (nameTextInitIsUnitWithSingleLetter) {
             const nameTextWithoutUnitArray = nameText.slice(1, wholeNameText.length);
@@ -56,63 +52,30 @@ class RecipesService {
             };
           }
 
-          // for (let len = wholeNameText.length; len > 0; len--) {
-          //   /**
-          //    * Analisa se o texto sem o número é uma unidade de receita mas diminuindo o texto restante
-          //    * de trás para frente até restar apenas uma letra.
-          //    * Mesmo que sobre uma letra ela pode ser uma unidade de medida (Ex: g - gramas, l - litros...)
-          //    * porém temos que garantir que não se trata de uma letra dentro de uma palavra (Ex: o l pode ser litro mas se for encontrada no inicio da palavra "l"ata não é válido, ela deve estár isolada).
-          //    *
-          //    */
-          //   const nameTextInit = wholeNameText.substring(0, len);
+          // len > 1 = Units with single letters already returned
+          for (let len = wholeNameText.length; len > 1; len--) {
+            /**
+             * Analyzes whether text without the number is a revenue unit of measure, but reducing the
+             * remaining text until more than one letter remains.
+             */
+            const nameTextInit = wholeNameText.substring(0, len);
 
-          //   const recipeUnitUsed = orderedRecipeUnits.find((unit) => {
-          //     return unit.includes(nameTextInit) && unit.length === nameTextInit.length;
-          //   });
+            const recipeUnitUsed = orderedRecipeUnits
+              .filter((unit) => unit.length > 1)
+              .find((unit) => {
+                return unit.includes(nameTextInit) && unit.length === nameTextInit.length;
+              });
 
-          //   const isLetterOfOneWord = itemWords.some((word) => {
-          //     const hasNameTextInit = nameTextInit[0] === word;
-          //     const hasLetterLength = word.length == 1;
-          //     const hasSameLenght = word.length == nameTextInit.length;
-          //     return hasNameTextInit && hasLetterLength && hasSameLenght;
-          //   });
-
-          //   const isUnitAndNotRandomLetter = !isLetterOfOneWord;
-          //   console.log(">>> recipeUnitUsed: ", {
-          //     recipeUnitUsed: !recipeUnitUsed,
-          //     nameTextInit,
-          //     isUnitAndNotRandomLetter,
-          //   });
-          //   if (recipeUnitUsed) {
-          //     const amountChecked = isUnitAndNotRandomLetter
-          //       ? `${amountText.trim()} ${recipeUnitUsed}`
-          //       : amountText.trim();
-          //     const nameTextFinal = wholeNameText.substring(len, wholeNameText.length).trim();
-          //     return {
-          //       amount: amountChecked,
-          //       name: toCapitalizedCase(nameTextFinal.replace("de ", "")).trim(),
-          //     };
-          //   }
-          // }
+            if (recipeUnitUsed) {
+              const nameTextFinal = wholeNameText.substring(len, wholeNameText.length).trim();
+              return {
+                amount: `${amountText.trim()} ${recipeUnitUsed.toLowerCase()}`,
+                name: toCapitalizedCase(nameTextFinal.replace("de ", "")).trim(),
+              };
+            }
+          }
           return { amount: amountText.trim(), name: toCapitalizedCase(wholeNameText) };
         }
-
-        // if (hasAmountNumber) {
-        //   const receiptUnitUsed = orderedRecipeUnits.find((unit) => {
-        //     const isIncludedInItem = item.includes(unit);
-        //     const hasSameLenght = item.length === unit.length;
-
-        //     return isIncludedInItem && hasSameLenght;
-        //   });
-        //   const [amountText, ...nameText] = item.split(receiptUnitUsed);
-        //   // const amount = `${amountText.trim()} ${receiptUnitUsed.trim()}`.trim();
-        //   const amount = receiptUnitUsed
-        //     ? `${amountText.trim()} ${receiptUnitUsed}`
-        //     : amountText.trim();
-        //   const igredientName = nameText.join(whitespaceBetweenWords).replace("de ", "").trim();
-
-        //   return { amount, name: toCapitalizedCase(igredientName) };
-        // }
 
         return { amount: "indefinido", name: toCapitalizedCase(item) };
       });
