@@ -1,4 +1,4 @@
-export default function replaceAll(value: string, removables: string[], target: string) {
+export default function replaceAll(value: string, removables: string[], target: string = "") {
   let result = value;
 
   for (const item of removables) {
