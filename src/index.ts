@@ -1,9 +1,9 @@
-import * as express from 'express';
-import { Request, Response } from 'express';
+import * as express from "express";
+import { Request, Response } from "express";
 
-import serverConfig from './config/serverConfig';
-import recipeRouter from './routes/recipeRouter';
-import serverRunning from './utils/serverRunnings';
+import serverConfig from "./config/serverConfig";
+import recipeRouter from "./routes/recipeRouter";
+import serverRunning from "./utils/serverRunnings";
 
 const app = express();
 
@@ -14,6 +14,6 @@ app.get("/", (request: Request, response: Response) => {
   return response.json({ success: true });
 });
 
-app.use("/recipe", recipeRouter);
+app.use("/recipes", recipeRouter);
 
 app.listen(serverConfig.port, () => serverRunning(serverConfig));
