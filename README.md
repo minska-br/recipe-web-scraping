@@ -21,7 +21,7 @@ HOSTNAME=www.example.host.com
       - [Selenium](https://www.npmjs.com/package/selenium-webdriver)
   - [x] **Search for recipes by title on a website**
     - Recommended: https://www.tudogostoso.com.br/
-  - [ ] **Dispose recipes list enpoint after an search**
+  - [x] **Dispose recipes list enpoint after an search**
   - [ ] **Translate the recipe into English**
 
 
