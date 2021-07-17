@@ -1,8 +1,9 @@
+import Direction from '../common/Direction';
+import Ingredient from '../common/Ingredient';
+import Recipe from '../common/Recipe';
 import receiptUnits from '../constants/receiptUnits';
-import TudoGostosoCrawler from '../crawlers/tudoGostosoCrawler';
-import Direction from '../model/Direction';
-import Ingredient from '../model/Ingredient';
-import Recipe from '../model/Recipe';
+import RecipeList from '../crawlers/tudoGostoso/model/RecipeList';
+import TudoGostosoCrawler from '../crawlers/tudoGostoso/tudoGostosoCrawler';
 import removeTagsHTML from '../utils/removeTagsHTML';
 import replaceAll from '../utils/replaceAll';
 import toCapitalizedCase from '../utils/toCapitalizedCase';
@@ -10,7 +11,22 @@ import toCapitalizedCase from '../utils/toCapitalizedCase';
 class RecipesService {
   constructor(private tudoGostosoCrawler = new TudoGostosoCrawler()) {}
 
-  async getDetail(value = "test", hideCrawler = true) {
+  async list(value = "test", hideCrawler = true) {
+    try {
+      const recipesCrawled = await this.tudoGostosoCrawler.getList(value, hideCrawler);
+
+      const recipeListItem = new RecipeList(recipesCrawled);
+
+      const formatedList = recipeListItem.getFormatedList();
+
+      return formatedList;
+    } catch (error) {
+      console.error(">>> Error: ", error);
+      return null;
+    }
+  }
+
+  async search(value = "test", hideCrawler = true) {
     const romovables = ["\n"];
     const orderedRecipeUnits = receiptUnits.sort((a, b) => b.length - a.length);
 
