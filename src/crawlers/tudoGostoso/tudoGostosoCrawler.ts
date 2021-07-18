@@ -1,15 +1,6 @@
 import * as puppeteer from "puppeteer";
 import { Browser } from "puppeteer";
-
-import receiptUnits from "../../constants/receiptUnits";
 import CrawledRecipe from "../../common/CrawledRecipe";
-import Ingredient from "../../common/Ingredient";
-import Recipe from "../../common/Recipe";
-import removeTagsHTML from "../../utils/removeTagsHTML";
-import replaceAll from "../../utils/replaceAll";
-import toCapitalizedCase from "../../utils/toCapitalizedCase";
-import RecipeListItem from "./model/RecipeList";
-import RecipeList from "./model/RecipeList";
 
 const selectors = {
   initialAlertCancelButton: "div > div > button:nth-child(1)",
