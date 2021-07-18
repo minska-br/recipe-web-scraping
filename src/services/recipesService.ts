@@ -1,12 +1,12 @@
-import Direction from '../common/Direction';
-import Ingredient from '../common/Ingredient';
-import Recipe from '../common/Recipe';
-import receiptUnits from '../constants/receiptUnits';
-import RecipeList from '../crawlers/tudoGostoso/model/RecipeList';
-import TudoGostosoCrawler from '../crawlers/tudoGostoso/tudoGostosoCrawler';
-import removeTagsHTML from '../utils/removeTagsHTML';
-import replaceAll from '../utils/replaceAll';
-import toCapitalizedCase from '../utils/toCapitalizedCase';
+import Direction from "../common/Direction";
+import Ingredient from "../common/Ingredient";
+import Recipe from "../common/Recipe";
+import receiptUnits from "../constants/receiptUnits";
+import RecipeList from "../crawlers/tudoGostoso/model/RecipeList";
+import TudoGostosoCrawler from "../crawlers/tudoGostoso/tudoGostosoCrawler";
+import removeTagsHTML from "../utils/removeTagsHTML";
+import replaceAll from "../utils/replaceAll";
+import toCapitalizedCase from "../utils/toCapitalizedCase";
 
 class RecipesService {
   constructor(private tudoGostosoCrawler = new TudoGostosoCrawler()) {}
@@ -26,7 +26,7 @@ class RecipesService {
     }
   }
 
-  async search(value = "test", hideCrawler = true) {
+  async searchFirst(value = "test", hideCrawler = true) {
     const romovables = ["\n"];
     const orderedRecipeUnits = receiptUnits.sort((a, b) => b.length - a.length);
 
