@@ -37,6 +37,8 @@ const receiptUnits = [
   "colheres bem cheias",
   "pacote",
   "envelope",
+  "tablete",
+  "tabletes",
 ];
 
 export default receiptUnits;
