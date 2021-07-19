@@ -1,21 +1,27 @@
-import Direction from './Direction';
-import Ingredient from './Ingredient';
+import Direction from "./Direction";
+import Ingredient from "./Ingredient";
 
 export default class Recipe {
-  id?: string;
-
   constructor(
     private name: String,
     private ingredients: Ingredient[],
-    private directions: Direction[]
+    private directions: Direction[],
+    private id?: number
   ) {}
 
-  getJSON() {
-    return JSON.stringify({
-      id: this.id,
-      name: this.name,
-      ingredients: this.ingredients,
-      directions: this.directions,
-    });
+  public get Id() {
+    return this.id;
+  }
+
+  public get Name() {
+    return this.name;
+  }
+
+  public get Ingredients() {
+    return this.ingredients;
+  }
+
+  public get Directions() {
+    return this.directions;
   }
 }
