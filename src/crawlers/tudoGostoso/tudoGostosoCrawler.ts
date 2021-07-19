@@ -1,6 +1,6 @@
 import * as puppeteer from "puppeteer";
 import { Browser } from "puppeteer";
-import CrawledRecipe from "../../common/CrawledRecipe";
+import CrawledRecipeHTML from "./model/CrawledRecipeHTML";
 
 const selectors = {
   initialAlertCancelButton: "div > div > button:nth-child(1)",
@@ -28,7 +28,7 @@ class TudoGostosoCrawler {
     private delay = 1000
   ) {}
 
-  async getDetail(value = "test"): Promise<CrawledRecipe> {
+  async getDetail(value = "test"): Promise<CrawledRecipeHTML> {
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
@@ -73,7 +73,7 @@ class TudoGostosoCrawler {
 
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
 
-      return new CrawledRecipe(nameHTML, ingredientsHTML, directionsHTML);
+      return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
     } catch (error) {
       console.error(">>> Error: ", error);
       return null;
@@ -82,7 +82,7 @@ class TudoGostosoCrawler {
     }
   }
 
-  async getDetailById(id: number): Promise<CrawledRecipe> {
+  async getDetailById(id: number): Promise<CrawledRecipeHTML> {
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
@@ -105,9 +105,9 @@ class TudoGostosoCrawler {
 
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
 
-      return new CrawledRecipe(nameHTML, ingredientsHTML, directionsHTML);
+      return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
     } catch (error) {
-      console.error(">>> Error: ", JSON.stringify(error));
+      console.error(">>> Error: ", error);
       return null;
     } finally {
       if (this.browser) this.browser.close();
