@@ -3,7 +3,7 @@ import Ingredient from "./Ingredient";
 
 export default class Recipe {
   constructor(
-    private name: String,
+    private name: string,
     private ingredients: Ingredient[],
     private directions: Direction[],
     private id?: number
