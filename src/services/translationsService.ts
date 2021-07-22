@@ -1,4 +1,3 @@
-import Recipe from "../common/Recipe";
 import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
 
 class TranslatiosService {
@@ -14,12 +13,11 @@ class TranslatiosService {
     }
   }
 
-  async translateRecipe(recipe: Recipe, targetLang: string = "en"): Promise<Recipe> {
+  async translateMany(values: string[], targetLang: string = "en") {
     try {
-      const result = await Promise.all([this.translate(recipe.Name)]);
+      const result = await this.translatorCrawler.translateMany(values);
 
-      console.log(">>> translation result: ", result);
-      return null;
+      return result;
     } catch (error) {
       console.error(">>> Error: ", error);
       return null;
