@@ -1,4 +1,4 @@
-import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
+import TranslatorCrawler from '../crawlers/translator/translatorCrawler';
 
 class TranslatiosService {
   constructor(private translatorCrawler = new TranslatorCrawler()) {}
@@ -8,7 +8,7 @@ class TranslatiosService {
       const translationResult = await this.translatorCrawler.translate(value);
       return translationResult;
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     }
   }
@@ -19,7 +19,7 @@ class TranslatiosService {
 
       return result;
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     }
   }

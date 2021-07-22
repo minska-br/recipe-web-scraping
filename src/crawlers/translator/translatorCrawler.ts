@@ -43,7 +43,7 @@ class TranslatorCrawler {
 
       return translationResult;
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return "unknow";
     } finally {
       if (this.browser) this.browser.close();
@@ -60,7 +60,6 @@ class TranslatorCrawler {
     let results = {};
     const addResult = (value, translation) => {
       const isKnowedValue = Object.keys(results).includes(value);
-      console.log(">>> addResult: ", { isKnowedValue, value, translation });
 
       if (!isKnowedValue) {
         results = { ...results, [value]: translation };
@@ -73,8 +72,6 @@ class TranslatorCrawler {
       });
 
       await cluster.task(async ({ page, data: { value, addResult } }) => {
-        console.log(">>> cluster task: ", { value, addResult });
-
         const url = `https://translate.google.com/?sl=${sourceLang}&tl=${targetLang}&op=translate&text=${value}`;
 
         await page.goto(url);
@@ -95,7 +92,7 @@ class TranslatorCrawler {
 
       values.forEach((value) => cluster.queue({ value, addResult }));
     } catch (error) {
-      console.error("Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     } finally {
       if (cluster) {
