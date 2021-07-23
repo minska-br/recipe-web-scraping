@@ -75,7 +75,7 @@ class TudoGostosoCrawler {
 
       return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     } finally {
       if (this.browser) this.browser.close();
@@ -107,7 +107,7 @@ class TudoGostosoCrawler {
 
       return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     } finally {
       if (this.browser) this.browser.close();
@@ -152,7 +152,7 @@ class TudoGostosoCrawler {
 
       return resultListHTML;
     } catch (error) {
-      console.error(">>> Error: ", error);
+      console.error("[ERROR]: ", error);
       return null;
     } finally {
       if (this.browser) this.browser.close();
