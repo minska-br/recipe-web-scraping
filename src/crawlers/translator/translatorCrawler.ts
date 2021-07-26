@@ -68,7 +68,7 @@ class TranslatorCrawler {
     try {
       cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: 3,
+        maxConcurrency: 10,
       });
 
       await cluster.task(async ({ page, data: { value, addResult } }) => {
