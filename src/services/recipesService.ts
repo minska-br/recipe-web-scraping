@@ -20,7 +20,7 @@ class RecipesService {
 
       return formatedList;
     } catch (error) {
-      console.error("[ERROR]: ", error);
+      console.error("[ERROR]", error);
       return null;
     }
   }
@@ -32,7 +32,7 @@ class RecipesService {
       const recipeDetail = new RecipeDetail(recipeCrawled);
       return new Recipe(recipeDetail.Name, recipeDetail.Ingedients, recipeDetail.Directions);
     } catch (error) {
-      console.error("[ERROR]: ", error);
+      console.error("[ERROR]", error);
       return null;
     }
   }
@@ -50,7 +50,7 @@ class RecipesService {
       const translatedRecipe = await this.translatiosService.translateRecipe(recipe);
       return recipe;
     } catch (error) {
-      console.error("[ERROR]: ", error);
+      console.error("[ERROR]", error);
       return null;
     }
   }

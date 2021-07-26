@@ -29,8 +29,8 @@ export default class RecipeListitem {
           break;
 
         default:
-          console.error(
-            `\nError: Recipe List Item info does not knowed.
+          console.warn(
+            `\n[WARN]: Recipe List Item info does not knowed.
             \n\tInfo: ${JSON.stringify({ idx, elementInfo })}`
           );
       }
