@@ -1,7 +1,8 @@
-import Direction from '../common/Direction';
-import Ingredient from '../common/Ingredient';
-import Recipe from '../common/Recipe';
-import TranslatorCrawler from '../crawlers/translator/translatorCrawler';
+import Direction from "../common/Direction";
+import Ingredient from "../common/Ingredient";
+import Recipe from "../common/Recipe";
+import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
+import toCapitalizedCase from "../utils/toCapitalizedCase";
 
 class TranslatiosService {
   constructor(private translatorCrawler = new TranslatorCrawler()) {}
@@ -29,29 +30,42 @@ class TranslatiosService {
 
   async translateRecipe(recipe: Recipe, targetLang: string = "en") {
     try {
-      const initialValue = [];
-      const getValues = (obj) => Object.values(obj);
+      const initialValue = "";
+      const separator = "<br>";
 
-      const convertIngredientToStringArray = (total, current) => [...total, ...getValues(current)];
-      const ingredients = recipe.Ingredients.reduce(convertIngredientToStringArray, initialValue);
+      const ingredients = recipe.Ingredients.reduce((total, current) => {
+        return total + `${current.amount}: ${current.name} ${separator}`;
+      }, initialValue);
 
-      const convertDirectionToStringArray = (total, current) => [...total, getValues(current)[1]];
-      const directions = recipe.Directions.reduce(convertDirectionToStringArray, initialValue);
+      const directions = recipe.Directions.reduce((total, current) => {
+        return total + `${current.step}: ${current.name} ${separator}`;
+      }, initialValue);
 
-      const itensToTranslate = [recipe.Name, ...ingredients, ...directions];
+      const nameTranslation = await this.translatorCrawler.translate(recipe.Name);
+      const ingredientsTranslation = await this.translatorCrawler.translate(ingredients);
+      const directionsTranslation = await this.translatorCrawler.translate(directions);
 
-      const result = await this.translatorCrawler.translateMany(itensToTranslate);
+      const translatedIngredients: Ingredient[] = ingredientsTranslation
+        .split(separator)
+        .filter((direction) => Boolean(direction.trim()))
+        .map((direction) => {
+          const [amountValue, nameValue] = direction.split(":");
+          return {
+            amount: toCapitalizedCase(amountValue.trim()),
+            name: toCapitalizedCase(nameValue.trim()),
+          };
+        });
 
-      const translatedIngredients: Ingredient[] = recipe.Ingredients.map((ingredient) => {
-        return { amount: result[ingredient.amount], name: result[ingredient.name] };
-      });
-
-      const translatedDirections: Direction[] = recipe.Directions.map((direction) => {
-        return { step: direction.step, name: result[direction.name] };
-      });
+      const translatedDirections: Direction[] = directionsTranslation
+        .split(separator)
+        .filter((direction) => Boolean(direction.trim()))
+        .map((direction) => {
+          const [stepNum, nameValue] = direction.split(":");
+          return { step: parseInt(stepNum), name: toCapitalizedCase(nameValue.trim()) };
+        });
 
       const translatedRecipe = new Recipe(
-        result[recipe.Name],
+        nameTranslation,
         translatedIngredients,
         translatedDirections
       );
