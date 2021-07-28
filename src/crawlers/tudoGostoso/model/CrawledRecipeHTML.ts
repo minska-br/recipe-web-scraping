@@ -1,18 +1,15 @@
-/**
- * Model responsible for moving the crawled html on the sites.
- */
-export default class CrawledRecipe {
+export default class CrawledRecipeHTML {
   constructor(private name: string, private ingredients: string, private directions: string) {}
 
-  get Name() {
+  get NameHTML() {
     return this.name;
   }
 
-  get Ingredients() {
+  get IngredientsHTML() {
     return this.ingredients;
   }
 
-  get Directions() {
+  get DirectionsHTML() {
     return this.directions;
   }
 }
