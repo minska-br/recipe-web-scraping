@@ -1,7 +1,9 @@
 import Direction from "../common/Direction";
 import Ingredient from "../common/Ingredient";
 import Recipe from "../common/Recipe";
+import { error } from "../config/logger";
 import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
+import NAMESPACES from "../enumerators/namespaces";
 import toCapitalizedCase from "../utils/toCapitalizedCase";
 
 class TranslatiosService {
@@ -11,8 +13,8 @@ class TranslatiosService {
     try {
       const translationResult = await this.translatorCrawler.translate(value);
       return translationResult;
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TranslatiosService, "translate", err);
       return null;
     }
   }
@@ -22,8 +24,8 @@ class TranslatiosService {
       const result = await this.translatorCrawler.translateMany(values);
 
       return result;
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TranslatiosService, "translateMany", err);
       return null;
     }
   }
@@ -71,8 +73,8 @@ class TranslatiosService {
       );
 
       return translatedRecipe;
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TranslatiosService, "translateRecipe", err);
       return null;
     }
   }

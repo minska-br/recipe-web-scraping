@@ -1,3 +1,5 @@
+import { warn } from "../../../config/logger";
+import NAMESPACES from "../../../enumerators/namespaces";
 import removeTagsHTML from "../../../utils/removeTagsHTML";
 import toCapitalizedCase from "../../../utils/toCapitalizedCase";
 
@@ -29,10 +31,9 @@ export default class RecipeListitem {
           break;
 
         default:
-          console.warn(
-            `\n[WARN]: Recipe List Item info does not knowed.
-            \n\tInfo: ${JSON.stringify({ idx, elementInfo })}`
-          );
+          const info = { idx, elementInfo };
+          const msg = "RecipeListItem - Recipe List Item info does not knowed";
+          warn(NAMESPACES.TudoGostosoCrawler, msg, info);
       }
     });
   }

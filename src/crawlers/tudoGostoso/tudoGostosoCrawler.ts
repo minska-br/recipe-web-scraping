@@ -1,5 +1,7 @@
 import * as puppeteer from "puppeteer";
 import { Browser } from "puppeteer";
+import { error } from "../../config/logger";
+import NAMESPACES from "../../enumerators/namespaces";
 import CrawledRecipeHTML from "./model/CrawledRecipeHTML";
 
 const selectors = {
@@ -74,8 +76,9 @@ class TudoGostosoCrawler {
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
 
       return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TudoGostosoCrawler, "getDetail", err);
+
       return null;
     } finally {
       if (this.browser) this.browser.close();
@@ -106,8 +109,8 @@ class TudoGostosoCrawler {
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
 
       return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TudoGostosoCrawler, "getDetailById", err);
       return null;
     } finally {
       if (this.browser) this.browser.close();
@@ -151,8 +154,8 @@ class TudoGostosoCrawler {
       );
 
       return resultListHTML;
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TudoGostosoCrawler, "getList", err);
       return null;
     } finally {
       if (this.browser) this.browser.close();
