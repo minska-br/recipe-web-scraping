@@ -1,8 +1,14 @@
 import * as puppeteer from "puppeteer";
 import { Browser } from "puppeteer";
-import { error } from "../../config/logger";
-import NAMESPACES from "../../enumerators/namespaces";
-import CrawledRecipeHTML from "./model/CrawledRecipeHTML";
+import Recipe from "../../../common/Recipe";
+import { error, info } from "../../../config/logger";
+import NAMESPACES from "../../../enumerators/namespaces";
+import truncateText from "../../../utils/truncateText";
+import CrawledRecipeHTML from "../CrawledRecipeHTML";
+import IRecipeCrawler from "../IRecipeCrawler";
+import RecipeDetail from "./model/RecipeDetail";
+import RecipeList from "./model/RecipeList";
+import RecipeListItem from "./model/RecipeListItem";
 
 const selectors = {
   initialAlertCancelButton: "div > div > button:nth-child(1)",
@@ -17,20 +23,20 @@ const selectors = {
     "body > div.tdg-main > div.recipe-page > div > div.recipe-container.col-lg-12 > div:nth-child(5) > div > div.directions-info.col-lg-8.directions-card > div.instructions.e-instructions > ol",
 };
 
-class TudoGostosoCrawler {
+class TudoGostosoCrawler implements IRecipeCrawler {
   private url = `https://www.tudogostoso.com.br`;
   private defaultBrowserArgs = {
     headless: false,
+    waitUntil: "networkidle",
     defaultViewport: null,
     args: ["--start-maximized"],
   };
-  constructor(
-    private browser: Browser | null = null,
-    private hideCrawler = false,
-    private delay = 1000
-  ) {}
+  constructor(private browser: Browser | null = null, private hideCrawler = false) {}
 
-  async getDetail(value = "test"): Promise<CrawledRecipeHTML> {
+  isTranslationDependent = () => true;
+
+  async getDetail(value = "test"): Promise<Recipe> {
+    const initInfo = "getDetail - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
@@ -38,54 +44,62 @@ class TudoGostosoCrawler {
 
     try {
       const page = await this.browser.newPage();
-
       await page.goto(this.url);
-      await page.waitForTimeout(this.delay);
 
       const hasInitialAlertCancelButtonHTML = await page.evaluate((selector) => {
         const initialAlertCancelButtonElement = document.querySelector(selector);
         return Boolean(initialAlertCancelButtonElement);
       }, selectors.initialAlertCancelButton);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Close initial alert`);
 
       if (hasInitialAlertCancelButtonHTML) {
-        await page.waitForSelector(selectors.initialAlertCancelButton);
+        await page.waitForSelector(selectors.initialAlertCancelButton, {
+          visible: !this.hideCrawler,
+        });
         await page.focus(selectors.initialAlertCancelButton);
         await page.keyboard.press("Enter");
-        await page.waitForTimeout(this.delay);
+        info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Close initial alert`);
       }
 
-      await page.waitForSelector(selectors.searchInput, { visible: true });
+      await page.waitForSelector(selectors.searchInput);
       await page.focus(selectors.searchInput);
       await page.keyboard.type(value);
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(this.delay);
+      await page.waitForNavigation({ waitUntil: "networkidle2" });
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Type "${value}" in search input`);
 
-      await page.waitForSelector(selectors.firstitemFromResultList, { visible: true });
+      await page.waitForSelector(selectors.firstitemFromResultList);
       await page.focus(selectors.firstitemFromResultList);
       await page.keyboard.press("Enter");
+      await page.waitForNavigation({ waitUntil: "networkidle2" });
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Search value pressing Enter`);
 
-      await page.waitForSelector(selectors.ingredients, { visible: true });
-
+      await page.waitForSelector(selectors.name);
       const nameHTML = await page.$eval(selectors.name, (element) => element.innerHTML);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract name`, { nameHTML });
 
       const ingredientsHTML = await page.$eval(
         selectors.ingredients,
         (element) => element.innerHTML
       );
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract ingredients`, { ingredientsHTML });
 
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract directions`, { directionsHTML });
 
-      return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
+      const recipeCrawled = new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
+      const recipeDetail = new RecipeDetail(recipeCrawled);
+      return new Recipe(recipeDetail.Name, recipeDetail.Ingedients, recipeDetail.Directions);
     } catch (err) {
       error(NAMESPACES.TudoGostosoCrawler, "getDetail", err);
-
       return null;
     } finally {
       if (this.browser) this.browser.close();
     }
   }
 
-  async getDetailById(id: number): Promise<CrawledRecipeHTML> {
+  async getDetailById(id: number): Promise<Recipe> {
+    const initInfo = "getDetailById - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
@@ -96,19 +110,25 @@ class TudoGostosoCrawler {
       const page = await this.browser.newPage();
 
       await page.goto(specificRecipeId);
-      await page.waitForTimeout(this.delay);
-      await page.waitForSelector(selectors.ingredients, { visible: true });
 
+      await page.waitForSelector(selectors.name);
       const nameHTML = await page.$eval(selectors.name, (element) => element.innerHTML);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract name`, { nameHTML });
 
+      await page.waitForSelector(selectors.ingredients);
       const ingredientsHTML = await page.$eval(
         selectors.ingredients,
         (element) => element.innerHTML
       );
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract ingredients`, { ingredientsHTML });
 
+      await page.waitForSelector(selectors.ingredients);
       const directionsHTML = await page.$eval(selectors.steps, (element) => element.innerHTML);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract directions`, { directionsHTML });
 
-      return new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
+      const recipeCrawled = new CrawledRecipeHTML(nameHTML, ingredientsHTML, directionsHTML);
+      const recipeDetail = new RecipeDetail(recipeCrawled);
+      return new Recipe(recipeDetail.Name, recipeDetail.Ingedients, recipeDetail.Directions);
     } catch (err) {
       error(NAMESPACES.TudoGostosoCrawler, "getDetailById", err);
       return null;
@@ -117,7 +137,8 @@ class TudoGostosoCrawler {
     }
   }
 
-  async getList(value = "test") {
+  async getList(value = "test"): Promise<RecipeListItem[]> {
+    const initInfo = "getList - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
@@ -127,7 +148,6 @@ class TudoGostosoCrawler {
       const page = await this.browser.newPage();
 
       await page.goto(this.url);
-      await page.waitForTimeout(this.delay);
 
       const hasInitialAlertCancelButtonHTML = await page.evaluate((selector) => {
         const initialAlertCancelButtonElement = document.querySelector(selector);
@@ -138,22 +158,27 @@ class TudoGostosoCrawler {
         await page.waitForSelector(selectors.initialAlertCancelButton);
         await page.focus(selectors.initialAlertCancelButton);
         await page.keyboard.press("Enter");
-        await page.waitForTimeout(this.delay);
+        await page.waitForNavigation({ waitUntil: "networkidle2" });
+        info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Close initial alert`);
       }
 
       await page.waitForSelector(selectors.searchInput, { visible: true });
       await page.focus(selectors.searchInput);
       await page.keyboard.type(value);
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(this.delay);
+      await page.waitForNavigation({ waitUntil: "networkidle2" });
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Type "${value}" in search input`);
 
       await page.waitForSelector(selectors.resultList, { visible: true });
-
       const resultListHTML = await page.$$eval(selectors.resultList, (elements) =>
         elements.map((element: any) => element.innerHTML)
       );
+      const infoResultList = { resultListHTML: truncateText(resultListHTML[0]) };
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Extract result list`, infoResultList);
 
-      return resultListHTML;
+      const recipeListItem = new RecipeList(resultListHTML);
+      const formatedList = recipeListItem.getFormatedList();
+      return formatedList;
     } catch (err) {
       error(NAMESPACES.TudoGostosoCrawler, "getList", err);
       return null;

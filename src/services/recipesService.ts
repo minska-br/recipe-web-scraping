@@ -1,8 +1,8 @@
 import Recipe from "../common/Recipe";
-import { error } from "../config/logger";
-import RecipeDetail from "../crawlers/tudoGostoso/model/RecipeDetail";
-import RecipeList from "../crawlers/tudoGostoso/model/RecipeList";
-import TudoGostosoCrawler from "../crawlers/tudoGostoso/tudoGostosoCrawler";
+import { error, info } from "../config/logger";
+import RecipeCrawlerFactory from "../crawlers/recipes/RecipeCrawlerFactory";
+import TudoGostosoCrawler from "../crawlers/recipes/tudoGostoso/tudoGostosoCrawler";
+import Crawlers from "../enumerators/crawlers";
 import NAMESPACES from "../enumerators/namespaces";
 import TranslatiosService from "./translationsService";
 
@@ -12,45 +12,51 @@ class RecipesService {
     private translatiosService = new TranslatiosService()
   ) {}
 
-  async list(value = "test") {
+  async list(crawlerName: Crawlers, value = "test") {
+    const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
     try {
-      const recipesCrawled = await this.tudoGostosoCrawler.getList(value);
-
-      const recipeListItem = new RecipeList(recipesCrawled);
-
-      const formatedList = recipeListItem.getFormatedList();
-
-      return formatedList;
+      return await recipeCrawler.getList(value);
     } catch (err) {
       error(NAMESPACES.RecipesService, "list", err);
       return null;
     }
   }
 
-  async searchFirst(value = "test") {
+  async searchFirst(crawlerName: Crawlers, value = "test", targetLang = "en") {
+    let translatedRecipe: Recipe;
+    const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
+
     try {
-      const recipeCrawled = await this.tudoGostosoCrawler.getDetail(value);
-      if (!recipeCrawled) return null;
-      const recipeDetail = new RecipeDetail(recipeCrawled);
-      return new Recipe(recipeDetail.Name, recipeDetail.Ingedients, recipeDetail.Directions);
+      const crawledRecipe = await recipeCrawler.getDetail(value);
+      info(NAMESPACES.RecipesService, "searchFirst - crawled recipe result", { crawledRecipe });
+
+      if (!crawledRecipe) return null;
+
+      if (recipeCrawler.isTranslationDependent()) {
+        translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe, targetLang);
+        info(NAMESPACES.RecipesService, "searchFirst - translated result", { translatedRecipe });
+        return translatedRecipe || crawledRecipe;
+      }
+
+      return crawledRecipe;
     } catch (err) {
       error(NAMESPACES.RecipesService, "searchFirst", err);
       return null;
     }
   }
 
-  async searchById(id: number) {
+  async searchById(crawlerName: Crawlers, id: number) {
+    const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
+    info(NAMESPACES.RecipesService, "searchById - recipeCrawler", { recipeCrawler });
+
     try {
-      const recipeCrawled = await this.tudoGostosoCrawler.getDetailById(id);
-      if (!recipeCrawled) return null;
-      const recipeDetail = new RecipeDetail(recipeCrawled);
-      const recipe = new Recipe(
-        recipeDetail.Name,
-        recipeDetail.Ingedients,
-        recipeDetail.Directions
-      );
-      const translatedRecipe = await this.translatiosService.translateRecipe(recipe);
-      return recipe;
+      const crawledRecipe = await recipeCrawler.getDetailById(id);
+      info(NAMESPACES.RecipesService, "searchById - recipe web crawling result", { crawledRecipe });
+
+      const translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe);
+      info(NAMESPACES.RecipesService, "searchById - translated result", { translatedRecipe });
+
+      return translatedRecipe || crawledRecipe;
     } catch (err) {
       error(NAMESPACES.RecipesService, "searchById", err);
       return null;

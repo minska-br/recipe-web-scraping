@@ -1,9 +1,9 @@
-import { warn } from "../../../config/logger";
-import NAMESPACES from "../../../enumerators/namespaces";
-import removeTagsHTML from "../../../utils/removeTagsHTML";
-import toCapitalizedCase from "../../../utils/toCapitalizedCase";
+import { warn } from "../../../../config/logger";
+import NAMESPACES from "../../../../enumerators/namespaces";
+import removeTagsHTML from "../../../../utils/removeTagsHTML";
+import toCapitalizedCase from "../../../../utils/toCapitalizedCase";
 
-export default class RecipeListitem {
+export default class RecipeListItem {
   private id: number;
   private name: string;
   private autor: string;

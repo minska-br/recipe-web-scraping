@@ -13,15 +13,21 @@ const selectors = {
 
 class TranslatorCrawler {
   private defaultLang = "en";
-  constructor(private browser: Browser | null = null, private delay = 1000) {}
+  private sourceLang = "auto";
+  private targetLang = this.defaultLang;
 
-  async translate(
-    value = "test",
-    targetLang = this.defaultLang,
-    sourceLang = "auto",
-    hideCrawler = true
-  ) {
-    const url = `https://translate.google.com/?sl=${sourceLang}&tl=${targetLang}&op=translate&text=${value}`;
+  constructor(private browser: Browser | null = null) {}
+
+  public set TargetLang(value: string) {
+    this.targetLang = value;
+  }
+
+  async translate(value = "test", hideCrawler = false) {
+    const url =
+      `https://translate.google.com/?` +
+      `sl=${this.sourceLang}&` +
+      `tl=${this.targetLang}&` +
+      `op=translate&text=${value}`;
 
     try {
       this.browser = await puppeteer.launch({
@@ -36,9 +42,7 @@ class TranslatorCrawler {
 
       await page.goto(url);
       await page.waitForSelector(selectors.resultElement);
-      await page.waitForTimeout(this.delay);
-      await page.$eval(selectors.resultElement, (element) => element.innerHTML);
-
+      await page.click(selectors.buttonCopyResult);
       await page.focus(selectors.buttonCopyResult);
       await page.keyboard.press("Enter");
       const translationResult = await page.evaluate(() => navigator.clipboard.readText());
@@ -52,12 +56,7 @@ class TranslatorCrawler {
     }
   }
 
-  async translateMany(
-    values: string[],
-    targetLang = this.defaultLang,
-    sourceLang = "auto",
-    hideCrawler = true
-  ) {
+  async translateMany(values: string[], hideCrawler = true) {
     let cluster: Cluster<any, any>;
     let results = {};
     const addResult = (value, translation) => {
@@ -74,7 +73,11 @@ class TranslatorCrawler {
       });
 
       await cluster.task(async ({ page, data: { value, addResult } }) => {
-        const url = `https://translate.google.com/?sl=${sourceLang}&tl=${targetLang}&op=translate&text=${value}`;
+        const url =
+          `https://translate.google.com/?` +
+          `sl=${this.sourceLang}&` +
+          `tl=${this.targetLang}&` +
+          `op=translate&text=${value}`;
 
         await page.goto(url);
         const pageContext = await page.browserContext();
@@ -82,7 +85,6 @@ class TranslatorCrawler {
 
         await page.goto(url);
         await page.waitForSelector(selectors.resultElement);
-        await page.waitForTimeout(this.delay);
         await page.$eval(selectors.resultElement, (element) => element.innerHTML);
 
         await page.focus(selectors.buttonCopyResult);
