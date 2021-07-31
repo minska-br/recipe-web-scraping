@@ -1,6 +1,8 @@
 import * as puppeteer from "puppeteer";
 import { Browser } from "puppeteer";
 import { Cluster } from "puppeteer-cluster";
+import { error } from "../../config/logger";
+import NAMESPACES from "../../enumerators/namespaces";
 
 const selectors = {
   resultElement:
@@ -42,8 +44,8 @@ class TranslatorCrawler {
       const translationResult = await page.evaluate(() => navigator.clipboard.readText());
 
       return translationResult;
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TranslatorCrawler, "translate", err);
       return "unknow";
     } finally {
       if (this.browser) this.browser.close();
@@ -91,8 +93,8 @@ class TranslatorCrawler {
       });
 
       values.forEach((value) => cluster.queue({ value, addResult }));
-    } catch (error) {
-      console.error("[ERROR]: ", error);
+    } catch (err) {
+      error(NAMESPACES.TranslatorCrawler, "translate", err);
       return null;
     } finally {
       if (cluster) {
