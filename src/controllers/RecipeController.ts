@@ -104,6 +104,7 @@ export default class RecipeController {
     info(NAMESPACE.RecipeController, "list - initial values", infoToLog);
 
     const { value } = request.query;
+    const { crawlerName } = request.params;
 
     if (!value) {
       const message = '"Value" is a required parameter to search recipes.';
@@ -111,7 +112,25 @@ export default class RecipeController {
       return response.status(400).json({ message });
     }
 
-    const recipes = await this.recipesService.list(value as string);
+    if (!crawlerName) {
+      const message = "Required parameter 'crawlerName' not received to search recipes.";
+      info(NAMESPACE.RecipeController, "searchById - response (400)", { message });
+      return response.status(400).json({ message });
+    }
+
+    const crawlerEnumValue = Object.values(Crawlers).find(
+      (item) => item.toLowerCase() === crawlerName.toLowerCase()
+    ) as Crawlers;
+
+    const isValidCrawler = !!crawlerEnumValue;
+
+    if (!isValidCrawler) {
+      const message = "Required parameter 'crawlerName' not valid to search recipes.";
+      info(NAMESPACE.RecipeController, "searchById - response (400)", { message });
+      return response.status(400).json({ message });
+    }
+
+    const recipes = await this.recipesService.list(crawlerEnumValue, value as string);
 
     if (recipes) {
       const infoObj = { recipes: typeof recipes, count: recipes.length };
