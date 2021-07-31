@@ -1,7 +1,7 @@
 import Direction from "../common/Direction";
 import Ingredient from "../common/Ingredient";
 import Recipe from "../common/Recipe";
-import { error } from "../config/logger";
+import { error, info } from "../config/logger";
 import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
 import NAMESPACES from "../enumerators/namespaces";
 import toCapitalizedCase from "../utils/toCapitalizedCase";
@@ -11,6 +11,7 @@ class TranslatiosService {
 
   async translate(value: string) {
     try {
+      info(NAMESPACES.TranslatiosService, "translate", value);
       const translationResult = await this.translatorCrawler.translate(value);
       return translationResult;
     } catch (err) {
@@ -31,6 +32,9 @@ class TranslatiosService {
   }
 
   async translateRecipe(recipe: Recipe, targetLang: string = "en") {
+    info(NAMESPACES.TranslatiosService, "translateRecipe", { recipe, targetLang });
+    this.translatorCrawler.TargetLang = targetLang;
+
     try {
       const initialValue = "";
       const separator = "<br>";
@@ -44,8 +48,18 @@ class TranslatiosService {
       }, initialValue);
 
       const nameTranslation = await this.translatorCrawler.translate(recipe.Name);
+      const infoName = { nameTranslation };
+      info(NAMESPACES.TranslatiosService, "translateRecipe - Name translation", infoName);
+
       const ingredientsTranslation = await this.translatorCrawler.translate(ingredients);
+      info(NAMESPACES.TranslatiosService, "translateRecipe - Ingredients translation", {
+        ingredientsTranslation,
+      });
+
       const directionsTranslation = await this.translatorCrawler.translate(directions);
+      info(NAMESPACES.TranslatiosService, "translateRecipe - Directions translation", {
+        directionsTranslation,
+      });
 
       const translatedIngredients: Ingredient[] = ingredientsTranslation
         .split(separator)
