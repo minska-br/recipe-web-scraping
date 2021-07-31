@@ -5,8 +5,8 @@ const recipeController = new RecipeController();
 
 const recipeRouter = Router();
 
-recipeRouter.get("/", recipeController.list);
-recipeRouter.post("/", recipeController.searchFirst);
-recipeRouter.post("/:id", recipeController.searchById);
+recipeRouter.get("/:crawlerName", recipeController.list);
+recipeRouter.post("/:crawlerName", recipeController.searchFirst);
+recipeRouter.post("/:crawlerName/:id", recipeController.searchById);
 
 export default recipeRouter;
