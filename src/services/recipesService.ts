@@ -12,9 +12,10 @@ class RecipesService {
     private translatiosService = new TranslatiosService()
   ) {}
 
-  async list(value = "test") {
+  async list(crawlerName: Crawlers, value = "test") {
+    const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
     try {
-      return await this.tudoGostosoCrawler.getList(value);
+      return await recipeCrawler.getList(value);
     } catch (err) {
       error(NAMESPACES.RecipesService, "list", err);
       return null;
