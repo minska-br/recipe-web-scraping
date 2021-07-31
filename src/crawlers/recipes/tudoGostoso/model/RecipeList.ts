@@ -1,13 +1,13 @@
-import replaceAll from '../../../utils/replaceAll';
-import RecipeListitem from './RecipeIListtem';
+import replaceAll from "../../../../utils/replaceAll";
+import RecipeListItem from "./RecipeListItem";
 
 export default class RecipeList {
   constructor(private html: any[]) {}
 
-  getFormatedList(): RecipeListitem[] {
+  getFormatedList(): RecipeListItem[] {
     const formattedList = this.html.map((element: string) => {
       const elementInfos = element.split("</div>", 5).map((item) => replaceAll(item, ["\n"]));
-      return new RecipeListitem(elementInfos);
+      return new RecipeListItem(elementInfos);
     });
 
     const validFormattedList = formattedList.filter((item) => Boolean(item.Id));

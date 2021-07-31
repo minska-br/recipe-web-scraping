@@ -1,10 +1,10 @@
-import Direction from "../../../common/Direction";
-import Ingredient from "../../../common/Ingredient";
-import receiptUnits from "../../../constants/receiptUnits";
-import removeTagsHTML from "../../../utils/removeTagsHTML";
-import replaceAll from "../../../utils/replaceAll";
-import toCapitalizedCase from "../../../utils/toCapitalizedCase";
-import CrawledRecipe from "./CrawledRecipeHTML";
+import Direction from "../../../../common/Direction";
+import Ingredient from "../../../../common/Ingredient";
+import receiptUnits from "../../../../constants/receiptUnits";
+import removeTagsHTML from "../../../../utils/removeTagsHTML";
+import replaceAll from "../../../../utils/replaceAll";
+import toCapitalizedCase from "../../../../utils/toCapitalizedCase";
+import CrawledRecipe from "../../CrawledRecipeHTML";
 
 export default class RecipeDetail {
   private romovables = ["\n"];
@@ -64,7 +64,7 @@ export default class RecipeDetail {
         const nameTextWithoutUnit = nameTextWithoutUnitArray.join(whitespaceBetweenWords);
         return {
           amount: `${amountText.trim()} ${nameTextInit.toLowerCase()}`,
-          name: toCapitalizedCase(nameTextWithoutUnit.replace("de ", "")),
+          name: toCapitalizedCase(nameTextWithoutUnit.replace("de ", "").replace("da ", "")),
         };
       }
 
