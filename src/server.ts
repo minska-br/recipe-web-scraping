@@ -1,5 +1,4 @@
-import * as express from "express";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 import serverConfig from "./config/serverConfig";
 import recipeRouter from "./routes/recipeRouter";
 import translationsRouter from "./routes/translationsRouter";

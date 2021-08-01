@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { info } from "../config/logger";
+import { info } from "../config/Logger";
 import Crawlers from "../enumerators/crawlers";
 import { default as NAMESPACE } from "../enumerators/namespaces";
 import RecipesService from "../services/recipesService";

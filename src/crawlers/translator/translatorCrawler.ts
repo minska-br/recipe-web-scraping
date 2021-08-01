@@ -1,7 +1,6 @@
-import * as puppeteer from "puppeteer";
-import { Browser } from "puppeteer";
+import { Browser, default as puppeteer } from "puppeteer";
 import { Cluster } from "puppeteer-cluster";
-import { error } from "../../config/logger";
+import { error } from "../../config/Logger";
 import NAMESPACES from "../../enumerators/namespaces";
 
 const selectors = {
@@ -52,20 +51,24 @@ class TranslatorCrawler {
       error(NAMESPACES.TranslatorCrawler, "translate", err);
       return "unknow";
     } finally {
-      if (this.browser) this.browser.close();
+      if (this.browser) {
+        this.browser.disconnect();
+        this.browser.close();
+      }
     }
   }
 
   async translateMany(values: string[], hideCrawler = true) {
-    let cluster: Cluster<any, any>;
+    let cluster: Cluster<any, any> | undefined;
     let results = {};
-    const addResult = (value, translation) => {
+    const addResult = (value: string, translation: string) => {
       const isKnowedValue = Object.keys(results).includes(value);
 
       if (!isKnowedValue) {
         results = { ...results, [value]: translation };
       }
     };
+
     try {
       cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
@@ -94,7 +97,7 @@ class TranslatorCrawler {
         addResult(value, translationResult);
       });
 
-      values.forEach((value) => cluster.queue({ value, addResult }));
+      values.forEach((value) => cluster?.queue({ value, addResult }));
     } catch (err) {
       error(NAMESPACES.TranslatorCrawler, "translate", err);
       return null;

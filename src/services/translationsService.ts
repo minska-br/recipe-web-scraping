@@ -1,7 +1,7 @@
 import Direction from "../common/Direction";
 import Ingredient from "../common/Ingredient";
 import Recipe from "../common/Recipe";
-import { error, info } from "../config/logger";
+import { error, info } from "../config/Logger";
 import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
 import NAMESPACES from "../enumerators/namespaces";
 import toCapitalizedCase from "../utils/toCapitalizedCase";
@@ -37,7 +37,7 @@ class TranslatiosService {
 
     try {
       const initialValue = "";
-      const separator = "<br>";
+      const separator = "<§>";
 
       const ingredients = recipe.Ingredients.reduce((total, current) => {
         return total + `${current.amount}: ${current.name} ${separator}`;
@@ -63,7 +63,7 @@ class TranslatiosService {
 
       const translatedIngredients: Ingredient[] = ingredientsTranslation
         .split(separator)
-        .filter((direction) => Boolean(direction.trim()))
+        .filter((direction) => Boolean(direction?.trim()))
         .map((direction) => {
           const [amountValue, nameValue] = direction.split(":");
           return {
@@ -74,7 +74,7 @@ class TranslatiosService {
 
       const translatedDirections: Direction[] = directionsTranslation
         .split(separator)
-        .filter((direction) => Boolean(direction.trim()))
+        .filter((direction) => Boolean(direction?.trim()))
         .map((direction) => {
           const [stepNum, nameValue] = direction.split(":");
           return { step: parseInt(stepNum), name: toCapitalizedCase(nameValue.trim()) };

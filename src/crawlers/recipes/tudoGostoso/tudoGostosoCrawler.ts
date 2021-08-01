@@ -1,7 +1,6 @@
-import * as puppeteer from "puppeteer";
-import { Browser } from "puppeteer";
+import { Browser, default as puppeteer } from "puppeteer";
 import Recipe from "../../../common/Recipe";
-import { error, info } from "../../../config/logger";
+import { error, info } from "../../../config/Logger";
 import NAMESPACES from "../../../enumerators/namespaces";
 import truncateText from "../../../utils/truncateText";
 import CrawledRecipeHTML from "../CrawledRecipeHTML";
@@ -35,7 +34,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
 
   isTranslationDependent = () => true;
 
-  async getDetail(value = "test"): Promise<Recipe> {
+  async getDetail(value = "test"): Promise<Recipe | null> {
     const initInfo = "getDetail - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
@@ -44,13 +43,18 @@ class TudoGostosoCrawler implements IRecipeCrawler {
 
     try {
       const page = await this.browser.newPage();
-      await page.goto(this.url);
+
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Going to: ${this.url}`);
+      await page.goto(this.url, { waitUntil: "load" });
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight / 2));
 
       const hasInitialAlertCancelButtonHTML = await page.evaluate((selector) => {
         const initialAlertCancelButtonElement = document.querySelector(selector);
         return Boolean(initialAlertCancelButtonElement);
       }, selectors.initialAlertCancelButton);
-      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Close initial alert`);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Check initial alert`, {
+        hasInitialAlertCancelButtonHTML,
+      });
 
       if (hasInitialAlertCancelButtonHTML) {
         await page.waitForSelector(selectors.initialAlertCancelButton, {
@@ -98,7 +102,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     }
   }
 
-  async getDetailById(id: number): Promise<Recipe> {
+  async getDetailById(id: number): Promise<Recipe | null> {
     const initInfo = "getDetailById - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
@@ -108,8 +112,11 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     try {
       const specificRecipeId = `${this.url}/receita/${id}`;
       const page = await this.browser.newPage();
+      await page.setDefaultNavigationTimeout(0);
 
-      await page.goto(specificRecipeId);
+      info(NAMESPACES.TudoGostosoCrawler, `${initInfo}Going to: ${specificRecipeId}`);
+      await page.goto(specificRecipeId, { waitUntil: "load" });
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight / 2));
 
       await page.waitForSelector(selectors.name);
       const nameHTML = await page.$eval(selectors.name, (element) => element.innerHTML);
@@ -137,7 +144,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     }
   }
 
-  async getList(value = "test"): Promise<RecipeListItem[]> {
+  async getList(value = "test"): Promise<RecipeListItem[] | null> {
     const initInfo = "getList - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
@@ -147,7 +154,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     try {
       const page = await this.browser.newPage();
 
-      await page.goto(this.url);
+      await page.goto(this.url, { waitUntil: "load" });
 
       const hasInitialAlertCancelButtonHTML = await page.evaluate((selector) => {
         const initialAlertCancelButtonElement = document.querySelector(selector);

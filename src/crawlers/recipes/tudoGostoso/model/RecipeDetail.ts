@@ -8,9 +8,9 @@ import CrawledRecipe from "../../CrawledRecipeHTML";
 
 export default class RecipeDetail {
   private romovables = ["\n"];
-  private name: string;
-  private ingredients: Ingredient[];
-  private directions: Direction[];
+  private name: string = "";
+  private ingredients: Ingredient[] = [];
+  private directions: Direction[] = [];
   private orderedRecipeUnits: string[];
 
   constructor(crawledRecipe: CrawledRecipe) {
