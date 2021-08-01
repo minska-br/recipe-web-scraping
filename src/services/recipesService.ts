@@ -1,5 +1,5 @@
 import Recipe from "../common/Recipe";
-import { error, info } from "../config/logger";
+import { error, info } from "../config/Logger";
 import RecipeCrawlerFactory from "../crawlers/recipes/RecipeCrawlerFactory";
 import TudoGostosoCrawler from "../crawlers/recipes/tudoGostoso/tudoGostosoCrawler";
 import Crawlers from "../enumerators/crawlers";
@@ -22,8 +22,12 @@ class RecipesService {
     }
   }
 
-  async searchFirst(crawlerName: Crawlers, value = "test", targetLang = "en") {
-    let translatedRecipe: Recipe;
+  async searchFirst(
+    crawlerName: Crawlers,
+    value = "test",
+    targetLang = "en"
+  ): Promise<Recipe | null> {
+    let translatedRecipe: Recipe | null;
     const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
 
     try {
@@ -45,7 +49,7 @@ class RecipesService {
     }
   }
 
-  async searchById(crawlerName: Crawlers, id: number) {
+  async searchById(crawlerName: Crawlers, id: number): Promise<Recipe | null> {
     const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
     info(NAMESPACES.RecipesService, "searchById - recipeCrawler", { recipeCrawler });
 
@@ -53,10 +57,15 @@ class RecipesService {
       const crawledRecipe = await recipeCrawler.getDetailById(id);
       info(NAMESPACES.RecipesService, "searchById - recipe web crawling result", { crawledRecipe });
 
-      const translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe);
-      info(NAMESPACES.RecipesService, "searchById - translated result", { translatedRecipe });
+      if (!crawledRecipe) return null;
 
-      return translatedRecipe || crawledRecipe;
+      if (recipeCrawler.isTranslationDependent()) {
+        const translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe);
+        info(NAMESPACES.RecipesService, "searchById - translated result", { translatedRecipe });
+        return translatedRecipe || crawledRecipe;
+      }
+
+      return crawledRecipe;
     } catch (err) {
       error(NAMESPACES.RecipesService, "searchById", err);
       return null;

@@ -1,4 +1,4 @@
-import { info } from "../config/logger";
+import { info } from "../config/Logger";
 import NAMESPACES from "../enumerators/namespaces";
 
 interface serverInfo {

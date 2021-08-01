@@ -1,15 +1,15 @@
-import { warn } from "../../../../config/logger";
+import { warn } from "../../../../config/Logger";
 import NAMESPACES from "../../../../enumerators/namespaces";
 import removeTagsHTML from "../../../../utils/removeTagsHTML";
 import toCapitalizedCase from "../../../../utils/toCapitalizedCase";
 
 export default class RecipeListItem {
-  private id: number;
-  private name: string;
-  private autor: string;
-  private likes: number;
-  private preparation: string;
-  private portions: number;
+  private id: number = 0;
+  private name: string = "";
+  private autor: string = "";
+  private likes: number = 0;
+  private preparation: string = "";
+  private portions: number = 0;
 
   constructor(html: any[]) {
     html.forEach((elementInfo, idx) => {
