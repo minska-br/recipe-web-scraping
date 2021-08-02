@@ -1,21 +1,21 @@
-import Recipe from "../common/Recipe";
-import { error, info } from "../config/Logger";
-import RecipeCrawlerFactory from "../crawlers/recipes/RecipeCrawlerFactory";
-import TudoGostosoCrawler from "../crawlers/recipes/tudoGostoso/tudoGostosoCrawler";
-import Crawlers from "../enumerators/crawlers";
-import NAMESPACES from "../enumerators/namespaces";
-import TranslatiosService from "./translationsService";
+import Recipe from '../common/Recipe';
+import { error, info } from '../config/Logger';
+import RecipeCrawlerFactory from '../crawlers/recipes/RecipeCrawlerFactory';
+import Crawlers from '../enumerators/crawlers';
+import LanguageCode from '../enumerators/language-codes';
+import NAMESPACES from '../enumerators/namespaces';
+import TranslatiosService from './translationsService';
 
 class RecipesService {
-  constructor(
-    private tudoGostosoCrawler = new TudoGostosoCrawler(),
-    private translatiosService = new TranslatiosService()
-  ) {}
+  constructor(private translatiosService = new TranslatiosService()) {}
 
   async list(crawlerName: Crawlers, value = "test") {
     const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
+    const websiteLang = recipeCrawler.getDefaultWebsiteLanguage();
+
     try {
-      return await recipeCrawler.getList(value);
+      const valueToSearch = await this.translatiosService.translate(value, websiteLang);
+      return await recipeCrawler.getList(valueToSearch ?? value);
     } catch (err) {
       error(NAMESPACES.RecipesService, "list", err);
       return null;
@@ -25,18 +25,21 @@ class RecipesService {
   async searchFirst(
     crawlerName: Crawlers,
     value = "test",
-    targetLang = "en"
+    targetLang = LanguageCode.en
   ): Promise<Recipe | null> {
     let translatedRecipe: Recipe | null;
     const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
+    const websiteLang = recipeCrawler.getDefaultWebsiteLanguage();
+    const isTranslationDependent = websiteLang !== targetLang;
 
     try {
-      const crawledRecipe = await recipeCrawler.getDetail(value);
+      const valueToSearch = await this.translatiosService.translate(value, websiteLang);
+      const crawledRecipe = await recipeCrawler.getDetail(valueToSearch ?? value);
       info(NAMESPACES.RecipesService, "searchFirst - crawled recipe result", { crawledRecipe });
 
       if (!crawledRecipe) return null;
 
-      if (recipeCrawler.isTranslationDependent()) {
+      if (isTranslationDependent) {
         translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe, targetLang);
         info(NAMESPACES.RecipesService, "searchFirst - translated result", { translatedRecipe });
         return translatedRecipe || crawledRecipe;
@@ -49,9 +52,14 @@ class RecipesService {
     }
   }
 
-  async searchById(crawlerName: Crawlers, id: number): Promise<Recipe | null> {
+  async searchById(
+    crawlerName: Crawlers,
+    id: number,
+    targetLang = LanguageCode.en
+  ): Promise<Recipe | null> {
     const recipeCrawler = RecipeCrawlerFactory.createRecipeCrawler(crawlerName);
-    info(NAMESPACES.RecipesService, "searchById - recipeCrawler", { recipeCrawler });
+    const infoObj = { id, targetLang, recipeCrawler };
+    info(NAMESPACES.RecipesService, "searchById - recipeCrawler", infoObj);
 
     try {
       const crawledRecipe = await recipeCrawler.getDetailById(id);
@@ -59,8 +67,11 @@ class RecipesService {
 
       if (!crawledRecipe) return null;
 
-      if (recipeCrawler.isTranslationDependent()) {
-        const translatedRecipe = await this.translatiosService.translateRecipe(crawledRecipe);
+      if (recipeCrawler.getDefaultWebsiteLanguage() !== targetLang) {
+        const translatedRecipe = await this.translatiosService.translateRecipe(
+          crawledRecipe,
+          targetLang
+        );
         info(NAMESPACES.RecipesService, "searchById - translated result", { translatedRecipe });
         return translatedRecipe || crawledRecipe;
       }
