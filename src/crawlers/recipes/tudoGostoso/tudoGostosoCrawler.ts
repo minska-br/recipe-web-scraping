@@ -1,13 +1,15 @@
-import { Browser, default as puppeteer } from "puppeteer";
-import Recipe from "../../../common/Recipe";
-import { error, info } from "../../../config/Logger";
-import NAMESPACES from "../../../enumerators/namespaces";
-import truncateText from "../../../utils/truncateText";
-import CrawledRecipeHTML from "../CrawledRecipeHTML";
-import IRecipeCrawler from "../IRecipeCrawler";
-import RecipeDetail from "./model/RecipeDetail";
-import RecipeList from "./model/RecipeList";
-import RecipeListItem from "./model/RecipeListItem";
+import puppeteer, { Browser } from 'puppeteer';
+
+import Recipe from '../../../common/Recipe';
+import { error, info } from '../../../config/Logger';
+import LanguageCode from '../../../enumerators/language-codes';
+import NAMESPACES from '../../../enumerators/namespaces';
+import truncateText from '../../../utils/truncateText';
+import CrawledRecipeHTML from '../CrawledRecipeHTML';
+import IRecipeCrawler from '../IRecipeCrawler';
+import RecipeDetail from './model/RecipeDetail';
+import RecipeList from './model/RecipeList';
+import RecipeListItem from './model/RecipeListItem';
 
 const selectors = {
   initialAlertCancelButton: "div > div > button:nth-child(1)",
@@ -32,7 +34,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
   };
   constructor(private browser: Browser | null = null, private hideCrawler = false) {}
 
-  isTranslationDependent = () => true;
+  getDefaultWebsiteLanguage = () => LanguageCode.pt;
 
   async getDetail(value = "test"): Promise<Recipe | null> {
     const initInfo = "getDetail - [WORKER] ";
@@ -104,13 +106,14 @@ class TudoGostosoCrawler implements IRecipeCrawler {
 
   async getDetailById(id: number): Promise<Recipe | null> {
     const initInfo = "getDetailById - [WORKER] ";
+    const specificRecipeId = `${this.url}/receita/${id}`;
+
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
     });
 
     try {
-      const specificRecipeId = `${this.url}/receita/${id}`;
       const page = await this.browser.newPage();
       await page.setDefaultNavigationTimeout(0);
 
