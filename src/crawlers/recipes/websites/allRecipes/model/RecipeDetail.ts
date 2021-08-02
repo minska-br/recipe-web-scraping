@@ -1,7 +1,7 @@
-import Direction from '../../../../common/Direction';
-import Ingredient from '../../../../common/Ingredient';
-import toCapitalizedCase from '../../../../utils/toCapitalizedCase';
-import CrawledRecipe from '../../CrawledRecipeHTML';
+import Direction from '../../../../../common/interfaces/Direction';
+import Ingredient from '../../../../../common/interfaces/Ingredient';
+import toCapitalizedCase from '../../../../../utils/toCapitalizedCase';
+import CrawledRecipe from '../../../models/CrawledRecipeHTML';
 
 export default class RecipeDetail {
   private name: string = "";

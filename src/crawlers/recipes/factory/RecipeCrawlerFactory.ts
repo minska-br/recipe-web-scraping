@@ -1,7 +1,7 @@
-import Crawlers from '../../enumerators/crawlers';
-import AllRecipesCrawler from './allRecipes/allRecipesCrawler';
-import IRecipeCrawler from './IRecipeCrawler';
-import TudoGostosoCrawler from './tudoGostoso/tudoGostosoCrawler';
+import Crawlers from '../../../enumerators/crawlers';
+import IRecipeCrawler from '../interfaces/IRecipeCrawler';
+import AllRecipesCrawler from '../websites/allRecipes/allRecipesCrawler';
+import TudoGostosoCrawler from '../websites/tudoGostoso/tudoGostosoCrawler';
 
 export default class RecipeCrawlerFactory {
   public static createRecipeCrawler(crawlerName: Crawlers): IRecipeCrawler {

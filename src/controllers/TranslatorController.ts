@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import Recipe from "../common/Recipe";
-import TranslatiosService from "../services/translationsService";
+import { NextFunction, Request, Response } from 'express';
+
+import Recipe from '../common/models/Recipe';
+import TranslatiosService from '../services/translationsService';
 
 export default class TranslatorController {
   constructor(private translationsService: TranslatiosService = new TranslatiosService()) {}

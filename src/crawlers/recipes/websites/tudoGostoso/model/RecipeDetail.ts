@@ -1,10 +1,10 @@
-import Direction from '../../../../common/Direction';
-import Ingredient from '../../../../common/Ingredient';
-import receiptUnits from '../../../../constants/receiptUnits';
-import removeTagsHTML from '../../../../utils/removeTagsHTML';
-import replaceAll from '../../../../utils/replaceAll';
-import toCapitalizedCase from '../../../../utils/toCapitalizedCase';
-import CrawledRecipe from '../../CrawledRecipeHTML';
+import Direction from '../../../../../common/interfaces/Direction';
+import Ingredient from '../../../../../common/interfaces/Ingredient';
+import receiptUnits from '../../../../../constants/receiptUnits';
+import removeTagsHTML from '../../../../../utils/removeTagsHTML';
+import replaceAll from '../../../../../utils/replaceAll';
+import toCapitalizedCase from '../../../../../utils/toCapitalizedCase';
+import CrawledRecipe from '../../../models/CrawledRecipeHTML';
 
 export default class RecipeDetail {
   private romovables = ["\n"];
