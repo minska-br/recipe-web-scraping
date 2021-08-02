@@ -90,7 +90,7 @@ export default class RecipeDetail {
           return {
             amount: `${amountText.trim()}`,
             unit: `${recipeUnitUsed.toLowerCase()}`,
-            name: toCapitalizedCase(nameTextFinal.replace("de ", "")).trim(),
+            name: toCapitalizedCase(nameTextFinal.replace("de ", "").replace("da ", "")).trim(),
           };
         }
       }
