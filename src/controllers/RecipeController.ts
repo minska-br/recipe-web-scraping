@@ -1,8 +1,11 @@
-import { NextFunction, Request, Response } from "express";
-import { info } from "../config/Logger";
-import Crawlers from "../enumerators/crawlers";
-import { default as NAMESPACE } from "../enumerators/namespaces";
-import RecipesService from "../services/recipesService";
+import { NextFunction, Request, Response } from 'express';
+
+import { info } from '../config/Logger';
+import Crawlers from '../enumerators/crawlers';
+import NAMESPACE from '../enumerators/namespaces';
+import RecipesService from '../services/recipesService';
+import getCrawlerEnum from '../utils/getCrawlerEnum';
+import getLanguageCodeEnum from '../utils/getLanguageCodeEnum';
 
 export default class RecipeController {
   constructor(private recipesService = new RecipesService()) {}
@@ -26,14 +29,16 @@ export default class RecipeController {
       return response.status(400).json({ message });
     }
 
-    const crawlerEnumValue = Object.values(Crawlers).find(
-      (item) => item.toLowerCase() === crawlerName.toLowerCase()
-    ) as Crawlers;
-
-    const isValidCrawler = !!crawlerEnumValue;
-
-    if (!isValidCrawler) {
+    const crawlerEnumValue = getCrawlerEnum(crawlerName);
+    if (!crawlerEnumValue) {
       const message = "Required parameter 'crawlerName' not valid to search recipes.";
+      info(NAMESPACE.RecipeController, "searchFirst - response (400)", { message });
+      return response.status(400).json({ message });
+    }
+
+    const targetLangValue = getLanguageCodeEnum(targetLang as string);
+    if (targetLangValue === null) {
+      const message = "Required parameter 'targetLang' not valid to search recipes.";
       info(NAMESPACE.RecipeController, "searchFirst - response (400)", { message });
       return response.status(400).json({ message });
     }
@@ -41,7 +46,7 @@ export default class RecipeController {
     const recipe = await this.recipesService.searchFirst(
       crawlerEnumValue,
       value as string,
-      targetLang as string
+      targetLangValue
     );
 
     if (recipe) {
@@ -57,6 +62,7 @@ export default class RecipeController {
     const infoToLog = { query: request.query, params: request.params };
     info(NAMESPACE.RecipeController, "searchById - initial values", infoToLog);
 
+    const { targetLang } = request.query;
     const { id, crawlerName } = request.params;
 
     const isNumber = !isNaN(Number(id));
@@ -75,19 +81,25 @@ export default class RecipeController {
       return response.status(400).json({ message });
     }
 
-    const crawlerEnumValue = Object.values(Crawlers).find(
-      (item) => item.toLowerCase() === crawlerName.toLowerCase()
-    ) as Crawlers;
-
-    const isValidCrawler = !!crawlerEnumValue;
-
-    if (!isValidCrawler) {
+    const crawlerEnumValue = getCrawlerEnum(crawlerName);
+    if (!crawlerEnumValue) {
       const message = "Required parameter 'crawlerName' not valid to search recipes.";
       info(NAMESPACE.RecipeController, "searchById - response (400)", { message });
       return response.status(400).json({ message });
     }
 
-    const recipe = await this.recipesService.searchById(crawlerEnumValue, parseInt(id));
+    const targetLangValue = getLanguageCodeEnum(targetLang as string);
+    if (targetLangValue === null) {
+      const message = "Required parameter 'targetLang' not valid to search recipes.";
+      info(NAMESPACE.RecipeController, "searchFirst - response (400)", { message });
+      return response.status(400).json({ message });
+    }
+
+    const recipe = await this.recipesService.searchById(
+      crawlerEnumValue,
+      parseInt(id),
+      targetLangValue
+    );
 
     if (recipe) {
       info(NAMESPACE.RecipeController, "searchById - response (200)", { recipe });
