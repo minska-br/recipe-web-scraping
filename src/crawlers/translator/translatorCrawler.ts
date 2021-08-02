@@ -1,7 +1,9 @@
-import { Browser, default as puppeteer } from "puppeteer";
-import { Cluster } from "puppeteer-cluster";
-import { error } from "../../config/Logger";
-import NAMESPACES from "../../enumerators/namespaces";
+import puppeteer, { Browser } from 'puppeteer';
+import { Cluster } from 'puppeteer-cluster';
+
+import { error } from '../../config/Logger';
+import LanguageCode from '../../enumerators/language-codes';
+import NAMESPACES from '../../enumerators/namespaces';
 
 const selectors = {
   resultElement:
@@ -11,13 +13,13 @@ const selectors = {
 };
 
 class TranslatorCrawler {
-  private defaultLang = "en";
+  private defaultLang = LanguageCode.en;
   private sourceLang = "auto";
   private targetLang = this.defaultLang;
 
   constructor(private browser: Browser | null = null) {}
 
-  public set TargetLang(value: string) {
+  public set TargetLang(value: LanguageCode) {
     this.targetLang = value;
   }
 
