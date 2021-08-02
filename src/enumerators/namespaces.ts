@@ -8,6 +8,7 @@ enum NAMESPACES {
   TranslatiosService = "TranslatiosService",
   TranslatorCrawler = "TranslatorCrawler",
   TudoGostosoCrawler = "TudoGostosoCrawler",
+  AllRecipesCrawler = "AllRecipesCrawler",
 }
 
 export default NAMESPACES;
