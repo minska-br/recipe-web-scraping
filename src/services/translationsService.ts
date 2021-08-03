@@ -1,6 +1,7 @@
-import Direction from '../common/Direction';
-import Ingredient from '../common/Ingredient';
-import Recipe from '../common/Recipe';
+import Direction from '../common/interfaces/Direction';
+import Ingredient from '../common/interfaces/Ingredient';
+import Recipe from '../common/models/Recipe';
+import RecipeIndex from '../common/types/RecipeIndex';
 import { error, info } from '../config/Logger';
 import TranslatorCrawler from '../crawlers/translator/translatorCrawler';
 import LanguageCode from '../enumerators/language-codes';
@@ -99,6 +100,38 @@ class TranslatiosService {
       );
 
       return translatedRecipe;
+    } catch (err) {
+      error(NAMESPACES.TranslatiosService, "translateRecipe", err);
+      return null;
+    }
+  }
+
+  async translateRecipeIndex(recipeIndex: RecipeIndex, targetLang = LanguageCode.pt) {
+    info(NAMESPACES.TranslatiosService, "translateRecipeIndex", { targetLang, recipeIndex });
+    this.translatorCrawler.TargetLang = targetLang;
+
+    try {
+      const initialValue = "";
+      const separator = " § ";
+
+      const indexOfRecipes = recipeIndex.reduce((total, current) => {
+        return total + `${current.id}: ${current.name} ${separator}`;
+      }, initialValue);
+
+      const indexOfRecipesTranslation = await this.translatorCrawler.translate(indexOfRecipes);
+      info(NAMESPACES.TranslatiosService, "translateRecipe - Recipes index translation", {
+        indexOfRecipesTranslation,
+      });
+
+      const translatedRecipeIndex: RecipeIndex = indexOfRecipesTranslation
+        .split(separator.trim()) // Avoid separator value to return in as value integrant
+        .filter((direction) => Boolean(direction?.trim()))
+        .map((direction) => {
+          const [idValue, nameValue] = direction.split(":");
+          return { id: parseInt(idValue), name: toCapitalizedCase(nameValue.trim()) };
+        });
+
+      return translatedRecipeIndex;
     } catch (err) {
       error(NAMESPACES.TranslatiosService, "translateRecipe", err);
       return null;
