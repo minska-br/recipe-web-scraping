@@ -115,7 +115,7 @@ export default class RecipeController {
     const infoToLog = { query: request.query, params: request.params };
     info(NAMESPACE.RecipeController, "list - initial values", infoToLog);
 
-    const { value } = request.query;
+    const { value, sourceLang } = request.query;
     const { crawlerName } = request.params;
 
     if (!value) {
@@ -142,7 +142,18 @@ export default class RecipeController {
       return response.status(400).json({ message });
     }
 
-    const recipes = await this.recipesService.list(crawlerEnumValue, value as string);
+    const sourceLangValue = getLanguageCodeEnum(sourceLang as string);
+    if (sourceLangValue === null) {
+      const message = "Required parameter 'sourceLang' not valid to search recipes.";
+      info(NAMESPACE.RecipeController, "searchFirst - response (400)", { message });
+      return response.status(400).json({ message });
+    }
+
+    const recipes = await this.recipesService.list(
+      crawlerEnumValue,
+      value as string,
+      sourceLangValue
+    );
 
     if (recipes) {
       const infoObj = { recipes: typeof recipes, count: recipes.length };
