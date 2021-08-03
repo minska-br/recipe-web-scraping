@@ -1,10 +1,10 @@
-import Direction from "../../../../common/Direction";
-import Ingredient from "../../../../common/Ingredient";
-import receiptUnits from "../../../../constants/receiptUnits";
-import removeTagsHTML from "../../../../utils/removeTagsHTML";
-import replaceAll from "../../../../utils/replaceAll";
-import toCapitalizedCase from "../../../../utils/toCapitalizedCase";
-import CrawledRecipe from "../../CrawledRecipeHTML";
+import Direction from '../../../../../common/interfaces/Direction';
+import Ingredient from '../../../../../common/interfaces/Ingredient';
+import receiptUnits from '../../../../../constants/receiptUnits';
+import removeTagsHTML from '../../../../../utils/removeTagsHTML';
+import replaceAll from '../../../../../utils/replaceAll';
+import toCapitalizedCase from '../../../../../utils/toCapitalizedCase';
+import CrawledRecipe from '../../../models/CrawledRecipeHTML';
 
 export default class RecipeDetail {
   private romovables = ["\n"];
@@ -36,6 +36,7 @@ export default class RecipeDetail {
 
   private setIngredients(html: string) {
     const whitespaceBetweenWords = " ";
+    const defaultValue = "undefined";
 
     const ingredients = html
       .toString()
@@ -48,8 +49,9 @@ export default class RecipeDetail {
       const firstItemText = itemWords[0];
       const hasAmountNumber = !isNaN(Number(firstItemText)) || firstItemText.includes("/");
 
-      // If doesn't have amount number, it returns the default amount value
-      if (!hasAmountNumber) return { amount: "indefinido", name: toCapitalizedCase(item) };
+      // If doesn't have amount number, it returns the default value
+      if (!hasAmountNumber)
+        return { amount: defaultValue, unit: defaultValue, name: toCapitalizedCase(item) };
 
       // If has amount number and a receipt unit with single letter (Ex< g, l, ...), it returns the amount with this receipt unit
       const [amountText, ...nameText] = itemWords;
@@ -63,7 +65,8 @@ export default class RecipeDetail {
         const nameTextWithoutUnitArray = nameText.slice(1, wholeNameText.length);
         const nameTextWithoutUnit = nameTextWithoutUnitArray.join(whitespaceBetweenWords);
         return {
-          amount: `${amountText.trim()} ${nameTextInit.toLowerCase()}`,
+          amount: `${amountText.trim()}`,
+          unit: `${nameTextInit.toLowerCase()}`,
           name: toCapitalizedCase(nameTextWithoutUnit.replace("de ", "").replace("da ", "")),
         };
       }
@@ -85,12 +88,18 @@ export default class RecipeDetail {
         if (recipeUnitUsed) {
           const nameTextFinal = wholeNameText.substring(len, wholeNameText.length).trim();
           return {
-            amount: `${amountText.trim()} ${recipeUnitUsed.toLowerCase()}`,
-            name: toCapitalizedCase(nameTextFinal.replace("de ", "")).trim(),
+            amount: `${amountText.trim()}`,
+            unit: `${recipeUnitUsed.toLowerCase()}`,
+            name: toCapitalizedCase(nameTextFinal.replace("de ", "").replace("da ", "")).trim(),
           };
         }
       }
-      return { amount: amountText.trim(), name: toCapitalizedCase(wholeNameText) };
+
+      return {
+        amount: amountText.trim(),
+        unit: defaultValue,
+        name: toCapitalizedCase(wholeNameText),
+      };
     });
 
     this.ingredients = ingredientsObj;

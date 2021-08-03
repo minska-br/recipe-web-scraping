@@ -1,5 +1,5 @@
-import Direction from "./Direction";
-import Ingredient from "./Ingredient";
+import Direction from '../interfaces/Direction';
+import Ingredient from '../interfaces/Ingredient';
 
 export default class Recipe {
   constructor(
