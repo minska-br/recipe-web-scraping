@@ -4,8 +4,10 @@
   "description": "API developed for web crawling using Node with Typescript.",
   "main": "index.js",
   "scripts": {
+    "build": "rimraf ./build && tsc",
     "start": "ts-node src/server.ts",
-    "start:dev": "ts-node-dev --respawn --pretty --ignore-watch node_modules --transpile-only src/server.ts"
+    "start:dev": "ts-node-dev --respawn --pretty --ignore-watch node_modules --transpile-only src/server.ts",
+    "start:prod": "npm run build && node ./build/server.js"
   },
   "repository": {
     "type": "git",
