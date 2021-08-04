@@ -1,5 +1,5 @@
 # Web Crawler API
-> API developed for web crawling using Node with Typescript..
+> API developed for web crawling using Node with Typescript.
 
 <p align="center">
   <a href="#requirements">Requirements</a> • 
@@ -38,28 +38,30 @@ npm install
 After install step we have three options related with the running process:
 
 ### Development mode
-This case should be used during the development, after each save files command will restart the project server with the new code. 
+This case should be used during development time, after each command to save files the project server will restart with the new code.
+
 ```
 npm run start:dev
 ```
 
 ### Stage mode
-Out of the development process people can test the requests and analise the logs without the necessity to change files.
+Outside of the development process, this mode is meant for people who want to test requests and analyze logs without having to change files.
 
 
 ```
 npm run start
 ```
 
-_Obs: On this way, changing and saving files doesn't restart the server_
+_Obs: This way, changing and saving the files will not restart the server with the latest updates. To do this, restart the server manually or use development mode._
 
 ### Production mode
-Running mode for production environment, this script will remove the ```/build``` directory and creates a new one with all the transpiled files.
+This is the execution mode aimed at the production environment, it will generate a set of optimized files so that the server doesn't suffer from impaired memory performance.
 
 ```
 npm run start:prod
 ```
 
+This script will remove the ```/build``` directory and creates a new one with all the transpiled files.
 
 ## Api documentation
 
