@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
-import Recipe from '../common/Recipe';
+import Recipe from '../common/models/Recipe';
 import TranslatiosService from '../services/translationsService';
 
 export default class TranslatorController {
-  constructor(private translationsService?: TranslatiosService) {
-    this.translationsService = new TranslatiosService();
-  }
+  constructor(private translationsService: TranslatiosService = new TranslatiosService()) {}
 
   translate = async (request: Request, response: Response, next: NextFunction) => {
     const { value } = request.query;

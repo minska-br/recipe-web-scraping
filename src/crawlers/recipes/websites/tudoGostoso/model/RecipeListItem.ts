@@ -1,13 +1,13 @@
-import removeTagsHTML from "../../../utils/removeTagsHTML";
-import toCapitalizedCase from "../../../utils/toCapitalizedCase";
+import removeTagsHTML from '../../../../../utils/removeTagsHTML';
+import toCapitalizedCase from '../../../../../utils/toCapitalizedCase';
 
-export default class RecipeListitem {
-  private id: number;
-  private name: string;
-  private autor: string;
-  private likes: number;
-  private preparation: string;
-  private portions: number;
+export default class RecipeListItem {
+  private id: number = 0;
+  private name: string = "";
+  private autor?: string;
+  private likes?: number;
+  private preparation?: string;
+  private portions?: number;
 
   constructor(html: any[]) {
     html.forEach((elementInfo, idx) => {
@@ -17,22 +17,22 @@ export default class RecipeListitem {
           break;
 
         case 2:
-          this.setNameAndAuthor(elementInfo);
+          this.setName(elementInfo);
+          // this.setAuthor(elementInfo);
           break;
 
-        case 3:
-          this.setLike(elementInfo);
-          break;
+        // case 3:
+        //   this.setLike(elementInfo);
+        //   break;
 
-        case 4:
-          this.setPreparation(elementInfo);
-          break;
+        // case 4:
+        //   this.setPreparation(elementInfo);
+        //   break;
 
-        default:
-          console.warn(
-            `\n[WARN]: Recipe List Item info does not knowed.
-            \n\tInfo: ${JSON.stringify({ idx, elementInfo })}`
-          );
+        // default:
+        //   const info = { idx, elementInfo };
+        //   const msg = "RecipeListItem - Recipe List Item info does not knowed";
+        //   warn(NAMESPACES.TudoGostosoCrawler, msg, info);
       }
     });
   }
@@ -48,13 +48,19 @@ export default class RecipeListitem {
     return this.id;
   }
 
-  private setNameAndAuthor(info: string) {
+  private setName(info: string) {
     const infoItems = info.split("</h3>");
 
-    const [nameHTML, authorHTML] = infoItems;
+    const [nameHTML] = infoItems;
     if (nameHTML) {
       this.name = removeTagsHTML(nameHTML);
     }
+  }
+
+  private setAuthor(info: string) {
+    const infoItems = info.split("</h3>");
+
+    const [_, authorHTML] = infoItems;
 
     if (authorHTML) {
       this.autor = removeTagsHTML(authorHTML.replace("Por", ""))
@@ -72,7 +78,7 @@ export default class RecipeListitem {
     return this.name;
   }
 
-  public get Author(): string {
+  public get Author(): string | undefined {
     return this.autor;
   }
 
@@ -80,7 +86,7 @@ export default class RecipeListitem {
     this.preparation = removeTagsHTML(info);
   }
 
-  public get Preparation(): string {
+  public get Preparation(): string | undefined {
     return this.preparation;
   }
 
@@ -88,7 +94,7 @@ export default class RecipeListitem {
     this.likes = parseInt(removeTagsHTML(info)) || 0;
   }
 
-  public get Likes(): number {
+  public get Likes(): number | undefined {
     return this.likes;
   }
 }

@@ -1,5 +1,5 @@
-import Direction from "./Direction";
-import Ingredient from "./Ingredient";
+import Direction from '../interfaces/Direction';
+import Ingredient from '../interfaces/Ingredient';
 
 export default class Recipe {
   constructor(
@@ -14,7 +14,7 @@ export default class Recipe {
   }
 
   public get Name() {
-    return this.name;
+    return this.name ?? "";
   }
 
   public set Name(value: string) {
@@ -22,7 +22,7 @@ export default class Recipe {
   }
 
   public get Ingredients() {
-    return this.ingredients;
+    return this.ingredients ?? [];
   }
 
   public set Ingredients(value: Ingredient[]) {
@@ -30,7 +30,7 @@ export default class Recipe {
   }
 
   public get Directions() {
-    return this.directions;
+    return this.directions ?? [];
   }
 
   public set Directions(value: Direction[]) {
