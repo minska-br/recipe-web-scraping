@@ -9,6 +9,8 @@ const receiptUnits = [
   "doses pequenas",
   "lata",
   "latas",
+  "cubo",
+  "cubos",
   "maço",
   "maços",
   "folha",
