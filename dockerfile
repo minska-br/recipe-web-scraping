@@ -1,12 +1,15 @@
-FROM node:14
+FROM zenika/alpine-chrome:77-with-node
 
-WORKDIR /usr/app
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+USER root
+
+WORKDIR /app
+COPY . /app
 
 COPY package*.json ./
 
 RUN npm install
-
-COPY . .
 
 CMD npm run start:prod
 

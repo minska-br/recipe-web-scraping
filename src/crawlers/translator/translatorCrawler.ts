@@ -34,7 +34,13 @@ class TranslatorCrawler {
       this.browser = await puppeteer.launch({
         headless: hideCrawler,
         defaultViewport: null,
-        args: ["--start-maximized"],
+        executablePath: '/usr/bin/chromium-browser',
+        args: [
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--disable-setuid-sandbox",
+          "--no-sandbox",
+        ],
       });
 
       const page = await this.browser.newPage();

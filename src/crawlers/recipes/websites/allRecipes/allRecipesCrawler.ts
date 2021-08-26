@@ -18,9 +18,9 @@ const selectors = {
     "body > main > div.search-results-content > div > div.search-results-content-results-wrapper.grid-view > div:nth-child(3) > div.card__imageContainer > a",
   name: "body > div.docked-sharebar-content-container > div > main > div.recipe-container.two-col-container > div.content.two-col-main-content.karma-content-container.railDockSection-0 > div.recipe-content.two-col-content.karma-main-column > div.main-header.recipe-main-header > div.intro.article-info > div > h1",
   ingredients:
-    "#ar-calvera-app > section.component.recipe-ingredients-new.container.interactive > fieldset > ul",
+    "#ar-calvera-app > section.component.recipe-ingredients.container.interactive > fieldset > ul",
   directions:
-    "body > div.docked-sharebar-content-container > div > main > div.recipe-container.two-col-container > div.content.two-col-main-content.karma-content-container.railDockSection-0 > div.recipe-content.two-col-content.karma-main-column > div.two-col-content-wrapper > div.recipe-content-container > section.recipe-instructions.recipe-instructions-new.component.container > fieldset > ul",
+    "body > div.docked-sharebar-content-container > div > main > div.recipe-container.two-col-container > div.content.two-col-main-content.karma-content-container.railDockSection-0 > div.recipe-content.two-col-content.karma-main-column > div.two-col-content-wrapper > div.recipe-content-container > section.recipe-instructions.recipe-instructions.component.container > fieldset > ul",
 };
 
 class AllRecipesCrawler implements IRecipeCrawler {
@@ -41,7 +41,15 @@ class AllRecipesCrawler implements IRecipeCrawler {
 
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
-      headless: this.hideCrawler,
+      headless: true,
+      executablePath: '/usr/bin/chromium-browser',
+      args: [
+        "--disable-gpu",
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process'
+      ],
     });
 
     try {
@@ -82,7 +90,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       error(NAMESPACES.AllRecipesCrawler, "getDetail", err);
       return null;
     } finally {
-      if (this.browser) this.browser.close();
+      if (this.browser) await this.browser.close();
     }
   }
 
@@ -91,8 +99,15 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const specificRecipeId = `${this.url}/recipe/${id}`;
 
     this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
-      headless: this.hideCrawler,
+      headless: true,
+      executablePath: '/usr/bin/chromium-browser',
+      args: [
+        "--disable-gpu",
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process'
+      ],
     });
 
     try {
@@ -100,7 +115,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       await page.setDefaultNavigationTimeout(0);
 
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${specificRecipeId}`);
-      await page.goto(specificRecipeId, { waitUntil: "load" });
+      await page.goto(specificRecipeId, { waitUntil: "load", timeout: 0});
 
       const name = await page.evaluate((selector) => {
         return document.querySelector(selector).innerText;
@@ -124,7 +139,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       error(NAMESPACES.AllRecipesCrawler, "getDetailById", err);
       return null;
     } finally {
-      if (this.browser) this.browser.close();
+      if (this.browser) await this.browser.close();
     }
   }
 
@@ -133,16 +148,24 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const specificRecipeSearchUrl = `${this.url}/search/results/?search=${value}`;
 
     this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
       headless: true,
+      executablePath: '/usr/bin/chromium-browser',
+      args: [
+        "--disable-gpu",
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process'
+      ],
     });
 
     try {
       const page = await this.browser.newPage();
-
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${specificRecipeSearchUrl}`);
-      await page.goto(specificRecipeSearchUrl, { waitUntil: "load" });
       await page.setDefaultTimeout(0);
+      await page.setDefaultNavigationTimeout(0);
+
+      await page.goto(specificRecipeSearchUrl, { waitUntil: "load",  timeout: 0 });
 
       const resultListHTML = await page.$$eval(selectors.resultList, (elements) =>
         elements.map((element: any) => element.innerHTML)
@@ -160,7 +183,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       error(NAMESPACES.AllRecipesCrawler, "getList", err);
       return null;
     } finally {
-      if (this.browser) this.browser.disconnect();
+      if (this.browser) await this.browser.close();
     }
   }
 }
