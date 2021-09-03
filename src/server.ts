@@ -3,8 +3,10 @@ import serverConfig from "./config/serverConfig";
 import recipeRouter from "./routes/recipeRouter";
 import translationsRouter from "./routes/translationsRouter";
 import serverRunning from "./utils/serverRunnings";
+import cors from "cors";
 
 const app = express();
+app.use(cors); /* NEW */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
