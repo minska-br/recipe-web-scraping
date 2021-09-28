@@ -102,7 +102,7 @@ export default class RecipeController {
     );
 
     if (recipe) {
-      info(NAMESPACE.RecipeController, "searchById - response (200)", { recipe });
+      info(NAMESPACE.RecipeController, "searchById - response (200)", JSON.stringify(recipe));
       return response.json(recipe);
     } else {
       const message = "Recipe not found";

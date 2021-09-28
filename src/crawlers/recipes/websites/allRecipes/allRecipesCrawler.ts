@@ -42,7 +42,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: true,
-      executablePath: '/usr/bin/chromium-browser',
+      // executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
         '--no-sandbox',
@@ -100,7 +100,6 @@ class AllRecipesCrawler implements IRecipeCrawler {
 
     this.browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
         '--no-sandbox',
@@ -149,7 +148,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
 
     this.browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/usr/bin/chromium-browser',
+      // executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
         '--no-sandbox',

@@ -40,7 +40,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     const initInfo = "getDetail - [WORKER] ";
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
-      executablePath: '/usr/bin/chromium-browser',
+      // executablePath: '/usr/bin/chromium-browser',
       headless: this.hideCrawler,
       args: [
         "--disable-gpu",
@@ -166,7 +166,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     this.browser = await puppeteer.launch({
       ...this.defaultBrowserArgs,
       headless: this.hideCrawler,
-      executablePath: '/usr/bin/chromium-browser',
+      // executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
         "--disable-dev-shm-usage",
