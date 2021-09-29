@@ -1,12 +1,13 @@
-import Direction from '../common/interfaces/Direction';
-import Ingredient from '../common/interfaces/Ingredient';
-import Recipe from '../common/models/Recipe';
-import RecipeIndex from '../common/types/RecipeIndex';
-import { error, info } from '../config/Logger';
-import TranslatorCrawler from '../crawlers/translator/translatorCrawler';
-import LanguageCode from '../enumerators/language-codes';
-import NAMESPACES from '../enumerators/namespaces';
-import toCapitalizedCase from '../utils/toCapitalizedCase';
+import Direction from "../common/interfaces/Direction";
+import Ingredient from "../common/interfaces/Ingredient";
+import Recipe from "../common/models/Recipe";
+import RecipeIndex from "../common/types/RecipeIndex";
+import { error, info } from "../config/Logger";
+import DEFAULT_AMOUNT from "../constants/defaultAmount";
+import TranslatorCrawler from "../crawlers/translator/translatorCrawler";
+import LanguageCode from "../enumerators/language-codes";
+import NAMESPACES from "../enumerators/namespaces";
+import toCapitalizedCase from "../utils/toCapitalizedCase";
 
 class TranslatiosService {
   constructor(private translatorCrawler = new TranslatorCrawler()) {}
@@ -68,7 +69,7 @@ class TranslatiosService {
           const [nameValue, unitValue] = ingredientParts.split(";");
 
           return {
-            amount: toCapitalizedCase(amountValue.trim()),
+            amount: Number(amountValue.trim()) ?? DEFAULT_AMOUNT,
             unit: toCapitalizedCase(unitValue.trim()),
             name: toCapitalizedCase(nameValue.trim()),
           };

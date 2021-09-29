@@ -1,15 +1,15 @@
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser } from "puppeteer";
 
-import Recipe from '../../../../common/models/Recipe';
-import RecipeIndex from '../../../../common/types/RecipeIndex';
-import { error, info } from '../../../../config/Logger';
-import LanguageCode from '../../../../enumerators/language-codes';
-import NAMESPACES from '../../../../enumerators/namespaces';
-import truncateText from '../../../../utils/truncateText';
-import IRecipeCrawler from '../../interfaces/IRecipeCrawler';
-import CrawledRecipeHTML from '../../models/CrawledRecipeHTML';
-import RecipeDetail from './model/RecipeDetail';
-import RecipeList from './model/RecipeList';
+import Recipe from "../../../../common/models/Recipe";
+import RecipeIndex from "../../../../common/types/RecipeIndex";
+import { error, info } from "../../../../config/Logger";
+import LanguageCode from "../../../../enumerators/language-codes";
+import NAMESPACES from "../../../../enumerators/namespaces";
+import truncateText from "../../../../utils/truncateText";
+import IRecipeCrawler from "../../interfaces/IRecipeCrawler";
+import CrawledRecipeHTML from "../../models/CrawledRecipeHTML";
+import RecipeDetail from "./model/RecipeDetail";
+import RecipeList from "./model/RecipeList";
 
 const selectors = {
   searchInput: "indefinido",
@@ -24,7 +24,7 @@ const selectors = {
 };
 
 class AllRecipesCrawler implements IRecipeCrawler {
-  private url = `https://www.allrecipes.com/`;
+  private url = `https://www.allrecipes.com`;
   private defaultBrowserArgs = {
     headless: false,
     waitUntil: "networkidle",
@@ -45,10 +45,10 @@ class AllRecipesCrawler implements IRecipeCrawler {
       // executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--single-process",
       ],
     });
 
@@ -102,10 +102,10 @@ class AllRecipesCrawler implements IRecipeCrawler {
       headless: true,
       args: [
         "--disable-gpu",
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--single-process",
       ],
     });
 
@@ -114,7 +114,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       await page.setDefaultNavigationTimeout(0);
 
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${specificRecipeId}`);
-      await page.goto(specificRecipeId, { waitUntil: "load", timeout: 0});
+      await page.goto(specificRecipeId, { waitUntil: "load", timeout: 0 });
 
       const name = await page.evaluate((selector) => {
         return document.querySelector(selector).innerText;
@@ -151,10 +151,10 @@ class AllRecipesCrawler implements IRecipeCrawler {
       // executablePath: '/usr/bin/chromium-browser',
       args: [
         "--disable-gpu",
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--single-process",
       ],
     });
 
@@ -164,7 +164,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
       await page.setDefaultTimeout(0);
       await page.setDefaultNavigationTimeout(0);
 
-      await page.goto(specificRecipeSearchUrl, { waitUntil: "load",  timeout: 0 });
+      await page.goto(specificRecipeSearchUrl, { waitUntil: "load", timeout: 0 });
 
       const resultListHTML = await page.$$eval(selectors.resultList, (elements) =>
         elements.map((element: any) => element.innerHTML)
