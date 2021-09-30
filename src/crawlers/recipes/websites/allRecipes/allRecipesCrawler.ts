@@ -1,8 +1,9 @@
-import puppeteer, { Browser } from "puppeteer";
+import { Browser } from "puppeteer";
 
 import Recipe from "../../../../common/models/Recipe";
 import RecipeIndex from "../../../../common/types/RecipeIndex";
 import { error, info } from "../../../../config/Logger";
+import getPuppeteerBrowser from "../../../../config/puppeterBrowser";
 import LanguageCode from "../../../../enumerators/language-codes";
 import NAMESPACES from "../../../../enumerators/namespaces";
 import truncateText from "../../../../utils/truncateText";
@@ -15,7 +16,7 @@ const selectors = {
   searchInput: "indefinido",
   resultList: ".card__detailsContainer-left",
   firstitemFromResultList:
-    "body > main > div.search-results-content > div > div.search-results-content-results-wrapper.grid-view > div:nth-child(3) > div.card__imageContainer > a",
+    "body > main > div.search-results-content > div > div.search-results-content-results-wrapper > div:nth-child(3) > div.card__imageContainer > a",
   name: "body > div.docked-sharebar-content-container > div > main > div.recipe-container.two-col-container > div.content.two-col-main-content.karma-content-container.railDockSection-0 > div.recipe-content.two-col-content.karma-main-column > div.main-header.recipe-main-header > div.intro.article-info > div > h1",
   ingredients:
     "#ar-calvera-app > section.component.recipe-ingredients.container.interactive > fieldset > ul",
@@ -39,34 +40,25 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const initInfo = "getDetail - [WORKER] ";
     const specificRecipeUrl = `${this.url}/search/results/?search=${value}`;
 
-    this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
-      headless: true,
-      // executablePath: '/usr/bin/chromium-browser',
-      args: [
-        "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--single-process",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser({ headless: true });
 
     try {
       const page = await this.browser.newPage();
       await page.setDefaultNavigationTimeout(0);
 
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${specificRecipeUrl}`);
-      await page.goto(specificRecipeUrl, { waitUntil: "load" });
-      await page.evaluate(() => window.scrollBy(0, window.innerHeight / 2));
+      // await page.goto(specificRecipeUrl, { waitUntil: "load" });
 
       const link = await page.evaluate((selector) => {
         return document.querySelector(selector).href;
       }, selectors.firstitemFromResultList);
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Find first details of ${value} at ${link}`);
 
+      await page.evaluate(() => window.scrollBy(0, window.outerHeight / 2));
+
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${link}`);
-      await page.goto(link, { waitUntil: "load" });
+
+      await page.evaluate(() => window.scrollBy(0, window.outerHeight / 2));
 
       const name = await page.evaluate((selector) => {
         return document.querySelector(selector).innerText;
@@ -98,16 +90,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const initInfo = "getDetailById - [WORKER] ";
     const specificRecipeId = `${this.url}/recipe/${id}`;
 
-    this.browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--single-process",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser();
 
     try {
       const page = await this.browser.newPage();
@@ -146,17 +129,7 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const initInfo = "getList - [WORKER] ";
     const specificRecipeSearchUrl = `${this.url}/search/results/?search=${value}`;
 
-    this.browser = await puppeteer.launch({
-      headless: true,
-      // executablePath: '/usr/bin/chromium-browser',
-      args: [
-        "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--single-process",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser();
 
     try {
       const page = await this.browser.newPage();
