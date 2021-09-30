@@ -1,15 +1,16 @@
-import puppeteer, { Browser } from 'puppeteer';
+import { Browser } from "puppeteer";
 
-import Recipe from '../../../../common/models/Recipe';
-import RecipeIndex from '../../../../common/types/RecipeIndex';
-import { error, info } from '../../../../config/Logger';
-import LanguageCode from '../../../../enumerators/language-codes';
-import NAMESPACES from '../../../../enumerators/namespaces';
-import truncateText from '../../../../utils/truncateText';
-import IRecipeCrawler from '../../interfaces/IRecipeCrawler';
-import CrawledRecipeHTML from '../../models/CrawledRecipeHTML';
-import RecipeDetail from './model/RecipeDetail';
-import RecipeList from './model/RecipeList';
+import Recipe from "../../../../common/models/Recipe";
+import RecipeIndex from "../../../../common/types/RecipeIndex";
+import { error, info } from "../../../../config/Logger";
+import getPuppeteerBrowser from "../../../../config/puppeterBrowser";
+import LanguageCode from "../../../../enumerators/language-codes";
+import NAMESPACES from "../../../../enumerators/namespaces";
+import truncateText from "../../../../utils/truncateText";
+import IRecipeCrawler from "../../interfaces/IRecipeCrawler";
+import CrawledRecipeHTML from "../../models/CrawledRecipeHTML";
+import RecipeDetail from "./model/RecipeDetail";
+import RecipeList from "./model/RecipeList";
 
 const selectors = {
   initialAlertCancelButton: "div > div > button:nth-child(1)",
@@ -38,17 +39,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
 
   async getDetail(value = "test"): Promise<Recipe | null> {
     const initInfo = "getDetail - [WORKER] ";
-    this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
-      // executablePath: '/usr/bin/chromium-browser',
-      headless: this.hideCrawler,
-      args: [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser();
 
     try {
       const page = await this.browser.newPage();
@@ -115,17 +106,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
     const initInfo = "getDetailById - [WORKER] ";
     const specificRecipeId = `${this.url}/receita/${id}`;
 
-    this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
-      executablePath: '/usr/bin/chromium-browser',
-      headless: this.hideCrawler,
-      args: [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser();
 
     try {
       const page = await this.browser.newPage();
@@ -163,17 +144,7 @@ class TudoGostosoCrawler implements IRecipeCrawler {
 
   async getList(value = "test"): Promise<RecipeIndex | null> {
     const initInfo = "getList - [WORKER] ";
-    this.browser = await puppeteer.launch({
-      ...this.defaultBrowserArgs,
-      headless: this.hideCrawler,
-      // executablePath: '/usr/bin/chromium-browser',
-      args: [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-      ],
-    });
+    this.browser = await getPuppeteerBrowser();
 
     try {
       const page = await this.browser.newPage();

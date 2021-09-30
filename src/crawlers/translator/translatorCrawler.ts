@@ -1,9 +1,10 @@
-import puppeteer, { Browser } from 'puppeteer';
-import { Cluster } from 'puppeteer-cluster';
+import puppeteer, { Browser } from "puppeteer";
+import { Cluster } from "puppeteer-cluster";
 
-import { error } from '../../config/Logger';
-import LanguageCode from '../../enumerators/language-codes';
-import NAMESPACES from '../../enumerators/namespaces';
+import { error } from "../../config/Logger";
+import getPuppeteerBrowser from "../../config/puppeterBrowser";
+import LanguageCode from "../../enumerators/language-codes";
+import NAMESPACES from "../../enumerators/namespaces";
 
 const selectors = {
   resultElement:
@@ -31,17 +32,7 @@ class TranslatorCrawler {
       `op=translate&text=${value}`;
 
     try {
-      this.browser = await puppeteer.launch({
-        headless: hideCrawler,
-        defaultViewport: null,
-        // executablePath: '/usr/bin/chromium-browser',
-        args: [
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          "--disable-setuid-sandbox",
-          "--no-sandbox",
-        ],
-      });
+      this.browser = await getPuppeteerBrowser({ headless: hideCrawler });
 
       const page = await this.browser.newPage();
       const pageContext = await page.browserContext();
