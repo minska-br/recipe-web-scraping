@@ -8,8 +8,9 @@ const chromiumDriverPath: string = process.env.CHROMIUM_DRIVER_PATH as string;
 
 const defaultBrowserArgs: browserType = {
   executablePath: chromiumDriverPath.length ? chromiumDriverPath : undefined,
-  headless: true,
+  headless: false,
   defaultViewport: null,
+  timeout: 0,
   args: [
     "--start-maximized",
     "--disable-gpu",
@@ -20,9 +21,12 @@ const defaultBrowserArgs: browserType = {
   ],
 };
 
-const getPuppeteerBrowser = async (
-  headless = defaultBrowserArgs.headless
-): Promise<Browser | null> => {
+interface IPuppeteerBrowserProps {
+  headless?: boolean;
+}
+
+const getPuppeteerBrowser = async (props?: IPuppeteerBrowserProps): Promise<Browser> => {
+  const headless = props?.headless ?? defaultBrowserArgs.headless;
   return await puppeteer.launch({ ...defaultBrowserArgs, headless });
 };
 
