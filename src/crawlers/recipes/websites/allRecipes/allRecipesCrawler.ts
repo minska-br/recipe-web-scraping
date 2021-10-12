@@ -90,14 +90,14 @@ class AllRecipesCrawler implements IRecipeCrawler {
     const initInfo = "getDetailById - [WORKER] ";
     const specificRecipeId = `${this.url}/recipe/${id}`;
 
-    this.browser = await getPuppeteerBrowser();
+    this.browser = await getPuppeteerBrowser({ headless: true });
 
     try {
       const page = await this.browser.newPage();
       await page.setDefaultNavigationTimeout(0);
 
       info(NAMESPACES.AllRecipesCrawler, `${initInfo}Going to: ${specificRecipeId}`);
-      await page.goto(specificRecipeId, { waitUntil: "load", timeout: 0 });
+      await page.goto(specificRecipeId, { waitUntil: "networkidle2" });
 
       const name = await page.evaluate((selector) => {
         return document.querySelector(selector).innerText;
