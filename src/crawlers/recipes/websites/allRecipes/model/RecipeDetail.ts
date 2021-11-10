@@ -1,7 +1,12 @@
-import Direction from '../../../../../common/interfaces/Direction';
-import Ingredient from '../../../../../common/interfaces/Ingredient';
-import toCapitalizedCase from '../../../../../utils/toCapitalizedCase';
-import CrawledRecipe from '../../../models/CrawledRecipeHTML';
+import Direction from "../../../../../common/interfaces/Direction";
+import Ingredient from "../../../../../common/interfaces/Ingredient";
+import DEFAULT_AMOUNT from "../../../../../constants/defaultAmount";
+import DEFAULT_UNIT from "../../../../../constants/defaultUnit";
+import toCapitalizedCase from "../../../../../utils/toCapitalizedCase";
+import CrawledRecipe from "../../../models/CrawledRecipeHTML";
+import fs from "fs";
+import { error, getTimestamp, info } from "../../../../../config/Logger";
+import NAMESPACES from "../../../../../enumerators/namespaces";
 
 export default class RecipeDetail {
   private name: string = "";
@@ -27,7 +32,6 @@ export default class RecipeDetail {
   }
 
   private setIngredients(html: string) {
-    const defaultValue = "undefined";
     const arrIngredients = html.split("</li>");
 
     const getValue = (item: any) => item.trim().split("=")[1].replace(/\"/g, "");
@@ -37,9 +41,22 @@ export default class RecipeDetail {
       .map((info: any) => {
         const infos = info.split("data");
 
+        const unitValue = getValue(infos[6]) || DEFAULT_UNIT;
+        if (unitValue == DEFAULT_UNIT) {
+          fs.appendFile(
+            "unknowed-units.txt",
+            `[${getTimestamp()}][${this.Name}] ${info}\r\n`,
+            function (err) {
+              if (err) error(NAMESPACES.AllRecipesCrawler, "RecipeDetail > setIngredients", err);
+
+              console.error("Unknowed unit:" + infos[6]);
+            }
+          );
+        }
+
         return {
-          amount: getValue(infos[5]) || defaultValue,
-          unit: getValue(infos[6]) || defaultValue,
+          amount: Number(getValue(infos[5])) ?? DEFAULT_AMOUNT,
+          unit: unitValue,
           name: toCapitalizedCase(getValue(infos[7])),
         };
       });

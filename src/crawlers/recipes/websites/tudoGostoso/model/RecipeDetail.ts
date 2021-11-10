@@ -1,5 +1,7 @@
 import Direction from '../../../../../common/interfaces/Direction';
 import Ingredient from '../../../../../common/interfaces/Ingredient';
+import DEFAULT_AMOUNT from '../../../../../constants/defaultAmount';
+import DEFAULT_UNIT from '../../../../../constants/defaultUnit';
 import receiptUnits from '../../../../../constants/receiptUnits';
 import removeTagsHTML from '../../../../../utils/removeTagsHTML';
 import replaceAll from '../../../../../utils/replaceAll';
@@ -36,7 +38,6 @@ export default class RecipeDetail {
 
   private setIngredients(html: string) {
     const whitespaceBetweenWords = " ";
-    const defaultValue = "undefined";
 
     const ingredients = html
       .toString()
@@ -51,7 +52,7 @@ export default class RecipeDetail {
 
       // If doesn't have amount number, it returns the default value
       if (!hasAmountNumber)
-        return { amount: defaultValue, unit: defaultValue, name: toCapitalizedCase(item) };
+        return { amount: DEFAULT_AMOUNT, unit: DEFAULT_UNIT, name: toCapitalizedCase(item) };
 
       // If has amount number and a receipt unit with single letter (Ex< g, l, ...), it returns the amount with this receipt unit
       const [amountText, ...nameText] = itemWords;
@@ -65,7 +66,7 @@ export default class RecipeDetail {
         const nameTextWithoutUnitArray = nameText.slice(1, wholeNameText.length);
         const nameTextWithoutUnit = nameTextWithoutUnitArray.join(whitespaceBetweenWords);
         return {
-          amount: `${amountText.trim()}`,
+          amount: Number(amountText.trim()) ?? DEFAULT_AMOUNT,
           unit: `${nameTextInit.toLowerCase()}`,
           name: toCapitalizedCase(nameTextWithoutUnit.replace("de ", "").replace("da ", "")),
         };
@@ -88,7 +89,7 @@ export default class RecipeDetail {
         if (recipeUnitUsed) {
           const nameTextFinal = wholeNameText.substring(len, wholeNameText.length).trim();
           return {
-            amount: `${amountText.trim()}`,
+            amount: Number(amountText.trim()) ?? DEFAULT_AMOUNT,
             unit: `${recipeUnitUsed.toLowerCase()}`,
             name: toCapitalizedCase(nameTextFinal.replace("de ", "").replace("da ", "")).trim(),
           };
@@ -96,8 +97,8 @@ export default class RecipeDetail {
       }
 
       return {
-        amount: amountText.trim(),
-        unit: defaultValue,
+        amount:  Number(amountText.trim()) ?? DEFAULT_AMOUNT,
+        unit: DEFAULT_UNIT,
         name: toCapitalizedCase(wholeNameText),
       };
     });
