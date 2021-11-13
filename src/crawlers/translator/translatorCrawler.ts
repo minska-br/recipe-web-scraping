@@ -24,7 +24,7 @@ class TranslatorCrawler {
     this.targetLang = value;
   }
 
-  async translate(value = "test", hideCrawler = false) {
+  async translate(value = "test", hideCrawler = true) {
     const url =
       `https://translate.google.com/?` +
       `sl=${this.sourceLang}&` +
@@ -32,28 +32,29 @@ class TranslatorCrawler {
       `op=translate&text=${value}`;
 
     try {
-      this.browser = await getPuppeteerBrowser({ headless: hideCrawler });
-
+      this.browser = await getPuppeteerBrowser();
+      
+      const pageContext = await this.browser.defaultBrowserContext();
+      await pageContext.overridePermissions(url, ['clipboard-read', 'clipboard-write']);
+      
       const page = await this.browser.newPage();
-      const pageContext = await page.browserContext();
-      await pageContext.overridePermissions(url, ["clipboard-write", "clipboard-read"]);
+      
+      await page.setDefaultNavigationTimeout(0);
 
-      await page.goto(url);
+      await page.goto(url, { waitUntil: "networkidle2" });
       await page.waitForSelector(selectors.resultElement);
       await page.click(selectors.buttonCopyResult);
       await page.focus(selectors.buttonCopyResult);
+
       await page.keyboard.press("Enter");
       const translationResult = await page.evaluate(() => navigator.clipboard.readText());
 
       return translationResult;
     } catch (err) {
       error(NAMESPACES.TranslatorCrawler, "translate", err);
-      return "unknow";
+      throw err;
     } finally {
-      if (this.browser) {
-        this.browser.disconnect();
-        this.browser.close();
-      }
+      if (this.browser) await this.browser.close();
     }
   }
 

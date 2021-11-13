@@ -22,7 +22,7 @@ class TranslatiosService {
       return translationResult;
     } catch (err) {
       error(NAMESPACES.TranslatiosService, "translate", err);
-      return null;
+      throw err;
     }
   }
 

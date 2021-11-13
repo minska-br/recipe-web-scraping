@@ -8,14 +8,13 @@ const chromiumDriverPath: string = process.env.CHROMIUM_DRIVER_PATH as string;
 
 const defaultBrowserArgs: browserType = {
   executablePath: chromiumDriverPath ? chromiumDriverPath : undefined,
-  headless: false,
+  headless: true,
   defaultViewport: null,
   timeout: 0,
   args: [
     "--disable-gpu",
     "--no-sandbox",
     "--disable-setuid-sandbox",
-    // "--single-process",
     "--autoplay-policy=user-gesture-required",
     "--disable-background-networking",
     "--disable-background-timer-throttling",

@@ -24,7 +24,7 @@ class RecipesService {
 
     try {
       const valueToSearch = await this.translatiosService.translate(value, websiteLang);
-      const recipeIndex = await recipeCrawler.getList(value);
+      const recipeIndex = await recipeCrawler.getList(valueToSearch);
 
       if (recipeIndex && isTranslationDependent) {
         const translatedRecipeIndex = await this.translatiosService.translateRecipeIndex(
