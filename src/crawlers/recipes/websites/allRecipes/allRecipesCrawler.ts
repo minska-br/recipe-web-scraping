@@ -27,12 +27,12 @@ const selectors = {
 class AllRecipesCrawler implements IRecipeCrawler {
   private url = `https://www.allrecipes.com`;
   private defaultBrowserArgs = {
-    headless: false,
+    headless: true,
     waitUntil: "networkidle",
     defaultViewport: null,
     args: ["--start-maximized"],
   };
-  constructor(private browser: Browser | null = null, private hideCrawler = false) {}
+  constructor(private browser: Browser | null = null, private hideCrawler = true) {}
 
   getDefaultWebsiteLanguage = () => LanguageCode.en;
 
